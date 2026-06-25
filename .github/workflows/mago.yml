@@ -67,4 +67,4 @@ jobs:
 
       - name: Test
         if: (success() || failure()) && matrix.php != '8.2' && matrix.php != '8.3'
-        run: phpunit --colors=always
+        run: ./vendor/bin/phpunit --colors=always
