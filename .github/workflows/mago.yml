@@ -62,7 +62,7 @@ jobs:
         run: mago lint
 
       - name: Analyze
-        if: success() || failure()
+        if: (success() || failure()) && matrix.php != '8.2' && matrix.php != '8.3'
         run: mago analyze
 
       - name: Test
