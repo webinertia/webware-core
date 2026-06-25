@@ -24,19 +24,29 @@ jobs:
           coverage: none
           tools: mago
 
+      # PHPUnit 13 requires PHP 8.4+. On 8.2/8.3, install without dev
+      # dependencies so Mago can still analyze production code.
+      - name: Determine Composer flags
+        run: |
+          FLAGS="--no-interaction --no-progress"
+          if [ "${{ matrix.php }}" = "8.2" ] || [ "${{ matrix.php }}" = "8.3" ]; then
+            FLAGS="--no-dev $FLAGS"
+          fi
+          echo "COMPOSER_FLAGS=$FLAGS" >> "$GITHUB_ENV"
+
       # Resolve dependencies at the configured strategy level.
       # "locked" uses the committed composer.lock as-is.
       - name: Install dependencies (lowest)
         if: matrix.dependencies == 'lowest'
-        run: composer update --prefer-lowest --no-interaction --no-progress
+        run: composer update --prefer-lowest $COMPOSER_FLAGS
 
       - name: Install dependencies (locked)
         if: matrix.dependencies == 'locked'
-        run: composer install --no-interaction --no-progress
+        run: composer install $COMPOSER_FLAGS
 
       - name: Install dependencies (latest)
         if: matrix.dependencies == 'latest'
-        run: composer update --no-interaction --no-progress
+        run: composer update $COMPOSER_FLAGS
 
       # Override the php-version in mago.toml to match the matrix PHP version
       # so that syntax-level checks are accurate for each version.
@@ -56,5 +66,5 @@ jobs:
         run: mago analyze
 
       - name: Test
-        if: success() || failure()
+        if: (success() || failure()) && matrix.php != '8.2' && matrix.php != '8.3'
         run: phpunit --colors=always
