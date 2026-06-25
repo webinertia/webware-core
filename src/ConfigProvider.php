@@ -16,21 +16,22 @@ namespace Webware\Core;
 
 final class ConfigProvider
 {
-    public function __invoke(): array
-    {
-        return [
-            'dependencies' => $this->getDependencies(),
-        ];
-    }
-
     public function getDependencies(): array
     {
         return [
             'aliases'    => [],
             'invokables' => [],
             'factories'  => [
-                Middleware\AttachCoreServicesMiddleware::class => Container\AttachCoreServicesMiddlewareFactory::class,
+                Http\Middleware\AttachCoreServicesMiddleware::class =>
+                    Container\AttachCoreServicesMiddlewareFactory::class,
             ],
+        ];
+    }
+
+    public function __invoke(): array
+    {
+        return [
+            'dependencies' => $this->getDependencies(),
         ];
     }
 }

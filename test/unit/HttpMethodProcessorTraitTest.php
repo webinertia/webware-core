@@ -15,58 +15,12 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Webware\Core\HttpMethodProcessorTrait;
+use Webware\Core\Http\Middleware\HttpMethodProcessorTrait;
 
 #[CoversClass(HttpMethodProcessorTrait::class)]
 final class HttpMethodProcessorTraitTest extends TestCase
 {
     private MiddlewareInterface $middleware;
-
-    protected function setUp(): void
-    {
-        $this->middleware = new class() implements MiddlewareInterface {
-            use HttpMethodProcessorTrait;
-
-            /** @var string[] */
-            public array $called = [];
-
-            public function processGet(
-                ServerRequestInterface $request,
-                RequestHandlerInterface $handler,
-            ): ResponseInterface {
-                $this->called[] = 'GET';
-
-                return $handler->handle($request);
-            }
-
-            public function processPost(
-                ServerRequestInterface $request,
-                RequestHandlerInterface $handler,
-            ): ResponseInterface {
-                $this->called[] = 'POST';
-
-                return $handler->handle($request);
-            }
-
-            public function processPatch(
-                ServerRequestInterface $request,
-                RequestHandlerInterface $handler,
-            ): ResponseInterface {
-                $this->called[] = 'PATCH';
-
-                return $handler->handle($request);
-            }
-
-            public function processDelete(
-                ServerRequestInterface $request,
-                RequestHandlerInterface $handler,
-            ): ResponseInterface {
-                $this->called[] = 'DELETE';
-
-                return $handler->handle($request);
-            }
-        };
-    }
 
     /** @return array<string, array{string, string}> */
     public static function verbProvider(): array
@@ -78,6 +32,23 @@ final class HttpMethodProcessorTraitTest extends TestCase
             'PUT dispatches to processPatch'     => ['PUT', 'PATCH'],
             'DELETE dispatches to processDelete' => ['DELETE', 'DELETE'],
         ];
+    }
+
+    #[Test]
+    public function defaultPassThroughCallsHandler(): void
+    {
+        $middleware = new class() implements MiddlewareInterface {
+            use HttpMethodProcessorTrait;
+        };
+
+        $expectedResponse = new EmptyResponse();
+        $request          = new ServerRequest([], [], '/', 'GET');
+        $handler          = $this->createStub(RequestHandlerInterface::class);
+        $handler->method('handle')->willReturn($expectedResponse);
+
+        $response = $middleware->process($request, $handler);
+
+        self::assertSame($expectedResponse, $response);
     }
 
     #[Test]
@@ -105,20 +76,50 @@ final class HttpMethodProcessorTraitTest extends TestCase
         $this->middleware->process($request, $handler);
     }
 
-    #[Test]
-    public function defaultPassThroughCallsHandler(): void
+    #[\Override]
+    protected function setUp(): void
     {
-        $middleware = new class() implements MiddlewareInterface {
+        $this->middleware = new class() implements MiddlewareInterface {
             use HttpMethodProcessorTrait;
+
+            /** @var string[] */
+            public array $called = [];
+
+            public function processDelete(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler,
+            ): ResponseInterface {
+                $this->called[] = 'DELETE';
+
+                return $handler->handle($request);
+            }
+
+            public function processGet(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler,
+            ): ResponseInterface {
+                $this->called[] = 'GET';
+
+                return $handler->handle($request);
+            }
+
+            public function processPatch(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler,
+            ): ResponseInterface {
+                $this->called[] = 'PATCH';
+
+                return $handler->handle($request);
+            }
+
+            public function processPost(
+                ServerRequestInterface $request,
+                RequestHandlerInterface $handler,
+            ): ResponseInterface {
+                $this->called[] = 'POST';
+
+                return $handler->handle($request);
+            }
         };
-
-        $expectedResponse = new EmptyResponse();
-        $request          = new ServerRequest([], [], '/', 'GET');
-        $handler          = $this->createStub(RequestHandlerInterface::class);
-        $handler->method('handle')->willReturn($expectedResponse);
-
-        $response = $middleware->process($request, $handler);
-
-        self::assertSame($expectedResponse, $response);
     }
 }

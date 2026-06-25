@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Webware\Core;
+namespace Webware\Core\Http\Middleware;
 
 use DomainException;
 use Fig\Http\Message\RequestMethodInterface;
@@ -18,29 +18,32 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 trait HttpMethodProcessorTrait
 {
-    #[Override]
     public function process(
         ServerRequestInterface $request,
         RequestHandlerInterface $handler,
     ): ResponseInterface {
         return match ($request->getMethod()) {
-            RequestMethodInterface::METHOD_GET    => $this->processGet($request, $handler),
-            RequestMethodInterface::METHOD_POST   => $this->processPost($request, $handler),
-            RequestMethodInterface::METHOD_PATCH,
-            RequestMethodInterface::METHOD_PUT    => $this->processPatch($request, $handler),
+            RequestMethodInterface::METHOD_GET => $this->processGet($request, $handler),
+            RequestMethodInterface::METHOD_POST => $this->processPost($request, $handler),
+            RequestMethodInterface::METHOD_PATCH, RequestMethodInterface::METHOD_PUT => $this->processPatch(
+                $request,
+                $handler,
+            ),
             RequestMethodInterface::METHOD_DELETE => $this->processDelete($request, $handler),
-            default                               => throw new DomainException('Unsupported HTTP method: ' . $request->getMethod()),
+            default                                                                  => throw new DomainException(
+                'Unsupported HTTP method: ' . $request->getMethod(),
+            ),
         };
     }
 
-    public function processGet(
+    public function processDelete(
         ServerRequestInterface $request,
         RequestHandlerInterface $handler,
     ): ResponseInterface {
         return $handler->handle($request);
     }
 
-    public function processPost(
+    public function processGet(
         ServerRequestInterface $request,
         RequestHandlerInterface $handler,
     ): ResponseInterface {
@@ -54,7 +57,7 @@ trait HttpMethodProcessorTrait
         return $handler->handle($request);
     }
 
-    public function processDelete(
+    public function processPost(
         ServerRequestInterface $request,
         RequestHandlerInterface $handler,
     ): ResponseInterface {
