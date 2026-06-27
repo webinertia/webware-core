@@ -16,21 +16,38 @@ namespace Webware\Core;
 
 final class ConfigProvider
 {
-    public function __invoke(): array
-    {
-        return [
-            'dependencies' => $this->getDependencies(),
-        ];
-    }
-
+    /**
+     * @mago-return array{
+     *      aliases: array<string, class-string>,
+     *      invokables: array<class-string, class-string>,
+     *      factories: array<class-string, class-string>
+     * }
+     */
     public function getDependencies(): array
     {
         return [
             'aliases'    => [],
             'invokables' => [],
             'factories'  => [
-                Middleware\AttachCoreServicesMiddleware::class => Container\AttachCoreServicesMiddlewareFactory::class,
+                Http\Middleware\AttachCoreServicesMiddleware::class =>
+                    Container\AttachCoreServicesMiddlewareFactory::class,
             ],
+        ];
+    }
+
+    /**
+     * @mago-return array{
+     *      dependencies: array{
+     *          aliases: array<string, class-string>,
+     *          invokables: array<class-string, class-string>,
+     *          factories: array<class-string, class-string>
+     *      }
+     * }
+     */
+    public function __invoke(): array
+    {
+        return [
+            'dependencies' => $this->getDependencies(),
         ];
     }
 }

@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Webware\Core\Middleware;
+namespace Webware\Core\Http\Middleware;
 
 use Laminas\InputFilter\InputFilterPluginManager;
+use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -15,15 +16,15 @@ final readonly class AttachCoreServicesMiddleware implements MiddlewareInterface
     public function __construct(
         private InputFilterPluginManager $inputFilterPluginManager,
     ) {}
-    
+
+    #[Override]
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         return $handler->handle(
-            $request
-                ->withAttribute(
-                    InputFilterPluginManager::class,
-                    $this->inputFilterPluginManager
-            )
+            $request->withAttribute(
+                InputFilterPluginManager::class,
+                $this->inputFilterPluginManager,
+            ),
         );
     }
 }

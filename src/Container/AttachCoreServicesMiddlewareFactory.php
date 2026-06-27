@@ -6,14 +6,14 @@ namespace Webware\Core\Container;
 
 use Laminas\InputFilter\InputFilterPluginManager;
 use Psr\Container\ContainerInterface;
-use Webware\Core\Middleware\AttachCoreServicesMiddleware;
+use Webware\Core\Http\Middleware\AttachCoreServicesMiddleware;
 
 final class AttachCoreServicesMiddlewareFactory
 {
     public function __invoke(ContainerInterface $container): AttachCoreServicesMiddleware
     {
         return new AttachCoreServicesMiddleware(
-            $container->get(InputFilterPluginManager::class)
+            $container->get(InputFilterPluginManager::class),
         );
     }
 }
