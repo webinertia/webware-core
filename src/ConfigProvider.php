@@ -16,6 +16,13 @@ namespace Webware\Core;
 
 final class ConfigProvider
 {
+    /**
+     * @mago-return array{
+     *      aliases: array<string, class-string>,
+     *      invokables: array<class-string, class-string>,
+     *      factories: array<class-string, class-string>
+     * }
+     */
     public function getDependencies(): array
     {
         return [
@@ -28,6 +35,15 @@ final class ConfigProvider
         ];
     }
 
+    /**
+     * @mago-return array{
+     *      dependencies: array{
+     *          aliases: array<string, class-string>,
+     *          invokables: array<class-string, class-string>,
+     *          factories: array<class-string, class-string>
+     *      }
+     * }
+     */
     public function __invoke(): array
     {
         return [

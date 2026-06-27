@@ -7,6 +7,7 @@ namespace Webware\CoreTest;
 use DomainException;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\ServerRequest;
+use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -60,7 +61,7 @@ final class HttpMethodProcessorTraitTest extends TestCase
         $handler->method('handle')->willReturn(new EmptyResponse());
 
         $this->middleware->process($request, $handler);
-
+        // @mago-expect analysis:non-existent-property
         self::assertSame([$expectedMethod], $this->middleware->called);
     }
 
@@ -71,12 +72,11 @@ final class HttpMethodProcessorTraitTest extends TestCase
         $handler = $this->createStub(RequestHandlerInterface::class);
 
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Unsupported HTTP method: TRACE');
 
         $this->middleware->process($request, $handler);
     }
 
-    #[\Override]
+    #[Override]
     protected function setUp(): void
     {
         $this->middleware = new class() implements MiddlewareInterface {

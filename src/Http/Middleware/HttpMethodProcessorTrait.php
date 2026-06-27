@@ -31,7 +31,7 @@ trait HttpMethodProcessorTrait
             ),
             RequestMethodInterface::METHOD_DELETE => $this->processDelete($request, $handler),
             default                                                                  => throw new DomainException(
-                'Unsupported HTTP method: ' . $request->getMethod(),
+                "Unsupported HTTP method: {$request->getMethod()}",
             ),
         };
     }
