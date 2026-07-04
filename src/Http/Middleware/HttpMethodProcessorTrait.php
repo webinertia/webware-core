@@ -6,7 +6,6 @@ namespace Webware\Core\Http\Middleware;
 
 use DomainException;
 use Fig\Http\Message\RequestMethodInterface;
-use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
