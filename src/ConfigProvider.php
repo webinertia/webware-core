@@ -14,21 +14,23 @@ declare(strict_types=1);
 
 namespace Webware\Core;
 
+/**
+ * @type Dependencies = array{
+ *      factories: array<class-string, class-string>
+ * }
+ * @type ProviderConfig = array{
+ *      dependencies: Dependencies
+ * }
+ */
 final class ConfigProvider
 {
     /**
-     * @mago-return array{
-     *      aliases: array<string, class-string>,
-     *      invokables: array<class-string, class-string>,
-     *      factories: array<class-string, class-string>
-     * }
+     * @return Dependencies
      */
     public function getDependencies(): array
     {
         return [
-            'aliases'    => [],
-            'invokables' => [],
-            'factories'  => [
+            'factories' => [
                 Http\Middleware\AttachCoreServicesMiddleware::class =>
                     Container\AttachCoreServicesMiddlewareFactory::class,
             ],
@@ -36,13 +38,7 @@ final class ConfigProvider
     }
 
     /**
-     * @mago-return array{
-     *      dependencies: array{
-     *          aliases: array<string, class-string>,
-     *          invokables: array<class-string, class-string>,
-     *          factories: array<class-string, class-string>
-     *      }
-     * }
+     * @return ProviderConfig
      */
     public function __invoke(): array
     {
