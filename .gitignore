@@ -8,3 +8,7 @@
 /.vscode
 /mago-results.txt
 *:Zone.Identifier
+/.specify/
+/specs/
+/infection.log
+/summary.log

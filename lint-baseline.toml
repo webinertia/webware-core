@@ -1,0 +1,7 @@
+variant = "loose"
+
+[[issues]]
+file = "src/InputFilter/SystemMessageTrait.php"
+code = "no-boolean-flag-parameter"
+message = "Avoid boolean flag parameters."
+count = 1

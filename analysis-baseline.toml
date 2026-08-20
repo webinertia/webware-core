@@ -1,0 +1,19 @@
+variant = "loose"
+
+[[issues]]
+file = "src/InputFilter/SystemMessageTrait.php"
+code = "deprecated-method"
+message = 'Call to deprecated method: `Laminas\InputFilter\InputFilterInterface::getMessages`.'
+count = 2
+
+[[issues]]
+file = "src/InputFilter/SystemMessageTrait.php"
+code = "mixed-assignment"
+message = "Assigning `mixed` type to a variable may lead to unexpected behavior."
+count = 1
+
+[[issues]]
+file = "src/InputFilter/SystemMessageTrait.php"
+code = "possibly-non-existent-method"
+message = 'Method `getmessages` might not exist on type `Webware\Core\InputFilter\SystemMessageTrait` at runtime.'
+count = 2

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Webware\CoreTest;
+namespace WebwareTest\Core;
 
 use DomainException;
 use Laminas\Diactoros\Response\EmptyResponse;
