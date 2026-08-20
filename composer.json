@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": "~8.4.0 || ~8.5.0",
+        "php": "~8.4.1 || ~8.5.0",
         "fig/http-message-util": "^1.1",
         "laminas/laminas-inputfilter": "3.0.x-dev",
         "php-standard-library/type": "^6.2.1",
@@ -24,11 +24,15 @@
         "psr/http-server-middleware": "^1.0"
     },
     "require-dev": {
+        "infection/infection": "^0.35.0",
         "laminas/laminas-diactoros": "^3.8",
         "laminas/laminas-filter": "3.5.x-dev",
         "php-db/phpdb": "^0.6.0",
-        "phpunit/phpunit": "^13.2.0",
-        "roave/security-advisories": "dev-master"
+        "phpbench/phpbench": "^1.7",
+        "phpunit/phpunit": "^13.3",
+        "roave/backward-compatibility-check": "^8.21.0",
+        "roave/security-advisories": "dev-master",
+        "webware/webware-tools": "^0.1.x-dev"
     },
     "autoload": {
         "psr-4": {
@@ -37,20 +41,27 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Webware\\CoreTest\\": "test/unit/",
-            "Webware\\CoreIntegrationTest\\": "test/integration/"
+            "WebwareTest\\Core\\": "test/unit/",
+            "WebwareTestIntegration\\Core\\": "test/integration/"
         }
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "php": "8.4.99"
+        },
+        "allow-plugins": {
+            "infection/extension-installer": true,
+            "laminas/laminas-component-installer": true
+        }
     },
     "scripts": {
-        "check-all": [
-            "@test"
-        ],
-        "test": "phpunit --colors=always",
-        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+        "test": "phpunit --no-coverage --colors=always --testsuite \"unit test\"",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml --coverage-html coverage/html --coverage-text",
+        "test-integration": "phpunit --no-coverage --colors=always --testsuite \"integration test\"",
+        "mutation-test": "infection",
+        "test-all": "@test && @test-integration && @mutation-test"
     }
 }

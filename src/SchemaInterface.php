@@ -6,6 +6,9 @@ namespace Webware\Core;
 
 use PhpDb\Sql\TableIdentifier;
 
+/**
+ * @api
+ */
 interface SchemaInterface
 {
     public function table(): TableIdentifier;

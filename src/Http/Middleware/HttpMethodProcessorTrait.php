@@ -14,6 +14,8 @@ use Psr\Http\Server\RequestHandlerInterface;
  * Trait to process HTTP methods in a MiddlewareInterface.
  * Override only the verb methods your middleware needs to handle;
  * unhandled verbs pass through to the next handler by default.
+ *
+ * @api
  */
 trait HttpMethodProcessorTrait
 {

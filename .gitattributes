@@ -20,3 +20,10 @@
 *.svg binary
 *.dia binary
 *.xcf binary
+/.specify/ export-ignore
+/specs/ export-ignore
+/infection.json5.dist export-ignore
+/codecov.yml export-ignore
+/phpbench.json.dist export-ignore
+/lint-baseline.toml export-ignore
+/analysis-baseline.toml export-ignore

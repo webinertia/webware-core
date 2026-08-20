@@ -4,4 +4,7 @@ declare(strict_types=1);
 
 namespace Webware\Core\Exception;
 
+/**
+ * @api
+ */
 interface ExceptionInterface {}
