@@ -8,7 +8,7 @@ use DomainException;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\ServerRequest;
 use Override;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -18,7 +18,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Webware\Core\Http\Middleware\HttpMethodProcessorTrait;
 
-#[CoversClass(HttpMethodProcessorTrait::class)]
+#[CoversTrait(HttpMethodProcessorTrait::class)]
 final class HttpMethodProcessorTraitTest extends TestCase
 {
     private MiddlewareInterface $middleware;
