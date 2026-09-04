@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Webware\Core\InputFilter;
 
+use Laminas\InputFilter\ErrorMessages;
+
 use function implode;
 use function is_array;
 use function is_string;
@@ -11,22 +13,21 @@ use function json_encode;
 
 /**
  * @api
- * @mixin \Laminas\InputFilter\InputFilterInterface
  */
 trait SystemMessageTrait
 {
-    public function getSystemMessage(bool $asJson = false): string
+    public function getSystemMessage(ErrorMessages $messages, bool $asJson = false): string
     {
         if ($asJson) {
-            $encoded = json_encode($this->getMessages()->jsonSerialize());
+            $encoded = json_encode($messages->jsonSerialize());
 
             return false === $encoded ? '[]' : $encoded;
         }
 
-        /** @var array<array-key, string|array<array-key, string|array<array-key, string>>> $messages */
-        $messages = $this->getMessages()->toArray();
+        /** @var array<array-key, string|array<array-key, string|array<array-key, string>>> $flat */
+        $flat = $messages->toArray();
 
-        return implode('<br />', $this->flattenMessages($messages));
+        return implode('<br />', $this->flattenMessages($flat));
     }
 
     /**
