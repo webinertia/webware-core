@@ -7,6 +7,9 @@ namespace Webware\Core;
 use Laminas\Permissions\Acl\AclInterface as LaminasAclInterface;
 use Laminas\Permissions\Acl\Resource\ResourceInterface;
 
+/**
+ * @api
+ */
 interface AclInterface extends LaminasAclInterface
 {
     final public const string DEVELOPER_ROLE_ID = 'Developer';

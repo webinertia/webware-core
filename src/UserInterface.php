@@ -9,6 +9,9 @@ use Laminas\Permissions\Acl\Resource\ResourceInterface;
 use Laminas\Permissions\Acl\Role\RoleInterface;
 use PhpDb\ResultSet\RowPrototypeInterface;
 
+/**
+ * @api
+ */
 interface UserInterface extends RoleInterface, ResourceInterface, ProprietaryInterface, RowPrototypeInterface
 {
     final public const string GUEST_ROLE = 'Guest';
