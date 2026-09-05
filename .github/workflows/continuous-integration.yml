@@ -22,7 +22,7 @@ jobs:
     secrets: inherit
     with:
       php-versions: '["8.4", "8.5"]'
-      run-integration: false
+      run-integration: true
       enable-codecov: true
       enable-infection: true
       # Canonical leg for coverage + mutation testing (highest supported PHP).
@@ -30,3 +30,16 @@ jobs:
       # Start at webware-log's values and raise as the test suite matures.
       min-msi: "0"
       min-covered-msi: "0"
+      # -----------------------------------------------------------------------
+      # Database — integration tests need a MySQL database via
+      # php-db/phpdb-mysql. This mirrors the `mysql` service in compose.yml.
+      # The reusable workflow starts a container from `db-image` and waits for
+      # `db-health-cmd` to succeed before running tests. `test-env-json`
+      # points the MySQL adapter at the runner's 127.0.0.1 and disables the
+      # PostgreSQL/SQLite adapters for CI (those drivers run locally only).
+      # -----------------------------------------------------------------------
+      db-image: "mysql:9.7"
+      db-port: "3306"
+      db-env-json: '{"MYSQL_ROOT_HOST":"%","MYSQL_ALLOW_EMPTY_PASSWORD":"true","MYSQL_DATABASE":"webware"}'
+      db-health-cmd: "mysqladmin ping -h127.0.0.1 --silent"
+      test-env-json: '{"TESTS_PHPDB_ADAPTER_MYSQL_HOSTNAME":"127.0.0.1","TESTS_PHPDB_ADAPTER_PGSQL":"0","TESTS_PHPDB_ADAPTER_SQLITE":"0"}'

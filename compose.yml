@@ -69,55 +69,58 @@ services:
       # Only the Composer cache stays on the Linux filesystem; it is a pure
       # cache and never needs to be visible on the host.
       - composer-cache:/tmp/composer-cache
-    # Uncomment when the package's tests need MySQL (see the `mysql` service
-    # below). Ensures the database is ready before the shell attaches.
-    # depends_on:
-    #   mysql:
-    #     condition: service_healthy
+    # The package's integration tests need MySQL and PostgreSQL (SQLite is
+    # file-based and needs no service). Ensures the databases are ready before
+    # the shell attaches.
+    depends_on:
+      mysql:
+        condition: service_healthy
+      pgsql:
+        condition: service_healthy
     working_dir: /app
 
   # -------------------------------------------------------------------------
-  # MySQL (optional) — uncomment this whole block for packages whose tests
-  # need a MySQL database (e.g. webware-acl via php-db/phpdb-mysql).
-  #
-  # Mirror the spec's `db-image` / `db-env-json` / `db-port` Package Parameters
-  # so the dev database matches CI. Point the package's local DB config (e.g.
-  # config/autoload/mysql.local.php) at host `mysql`, port 3306, using the
-  # credentials below. Adjust MYSQL_DATABASE / MYSQL_USER / MYSQL_PASSWORD to
-  # the package's test-database convention.
+  # MySQL — the package's integration tests need a MySQL database via
+  # php-db/phpdb-mysql. Mirrors the CI `db-image` parameter. Reachable from
+  # `tooling` as host `mysql` on port 3306.
   # -------------------------------------------------------------------------
-  # mysql:
-  #   image: mysql:9.7
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: root
-  #     MYSQL_DATABASE: webware
-  #     MYSQL_USER: webware
-  #     MYSQL_PASSWORD: webware
-  #   healthcheck:
-  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
-  #     interval: 5s
-  #     timeout: 5s
-  #     retries: 30
-  #   volumes:
-  #     # Named volume keeps the data on the fast Linux filesystem and
-  #     # survives `docker compose down` (use `down -v` to wipe it).
-  #     - mysql-data:/var/lib/mysql
-  #
-  # # phpMyAdmin — optional web UI for the `mysql` service above. Reachable at
-  # # http://localhost:8080 (log in with the MYSQL_* credentials). Uncomment
-  # # alongside `mysql`.
-  # phpmyadmin:
-  #   image: phpmyadmin:latest
-  #   environment:
-  #     PMA_HOST: mysql
-  #     PMA_PORT: 3306
-  #   ports:
-  #     - "8080:80"
-  #   depends_on:
-  #     mysql:
-  #       condition: service_healthy
+  mysql:
+    image: mysql:9.7
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      MYSQL_DATABASE: webware
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  # -------------------------------------------------------------------------
+  # PostgreSQL — the package's integration tests need a PostgreSQL database via
+  # php-db/phpdb-pgsql. Reachable from `tooling` as host `pgsql` on port 5432.
+  # -------------------------------------------------------------------------
+  pgsql:
+    image: postgres:17
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - pgsql-data:/var/lib/postgresql/data
 
 volumes:
   composer-cache:
-  # Used by the optional `mysql` service above.
   mysql-data:
+  pgsql-data:
