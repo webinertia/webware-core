@@ -65,6 +65,73 @@ final class SchemaFactoryTest extends TestCase
     }
 
     #[Test]
+    public function backupPrefersBackupPrefixOverSchemaInterfacePrefix(): void
+    {
+        $factory    = new SchemaFactory(['backup_prefix' => 'bck']);
+        $identifier = $factory->backup($this->schema(prefix: 'base'));
+
+        self::assertSame('bck_acl_role', $identifier->getTable());
+    }
+
+    #[Test]
+    public function backupPrefersCallTimePrefixOverBackupPrefix(): void
+    {
+        $factory    = new SchemaFactory(['backup_prefix' => 'bck']);
+        $identifier = $factory->backup($this->schema(), prefix: 'tmp');
+
+        self::assertSame('tmp_acl_role', $identifier->getTable());
+    }
+
+    #[Test]
+    public function backupPrefersCallTimeSchemaOverPerTableSchema(): void
+    {
+        $factory = new SchemaFactory([
+            'backup_prefix' => 'bck',
+            'schemas'       => ['acl_role' => 'tenant'],
+        ]);
+        $identifier = $factory->backup($this->schema(), schemaName: 'archive');
+
+        self::assertSame('archive', $identifier->getSchema());
+    }
+
+    #[Test]
+    public function backupPrefersCallTimeSeparatorOverConfigured(): void
+    {
+        $factory = new SchemaFactory([
+            'backup_prefix' => 'bck',
+            'separator'     => '__',
+        ]);
+        $identifier = $factory->backup($this->schema(), separator: '--');
+
+        self::assertSame('bck--acl_role', $identifier->getTable());
+    }
+
+    #[Test]
+    public function backupPrefersConfiguredSeparatorOverSchemaInterface(): void
+    {
+        $factory = new SchemaFactory([
+            'backup_prefix' => 'bck',
+            'separator'     => '__',
+        ]);
+        $identifier = $factory->backup($this->schema(separator: '++'));
+
+        self::assertSame('bck__acl_role', $identifier->getTable());
+    }
+
+    #[Test]
+    public function backupPrefersPerTableSchemaOverBackupSchema(): void
+    {
+        $factory = new SchemaFactory([
+            'backup_prefix' => 'bck',
+            'backup_schema' => 'backup',
+            'schemas'       => ['acl_role' => 'tenant'],
+        ]);
+        $identifier = $factory->backup($this->schema());
+
+        self::assertSame('tenant', $identifier->getSchema());
+    }
+
+    #[Test]
     public function backupSupportsCallTimeSchemaRedirect(): void
     {
         $factory = new SchemaFactory([
@@ -237,12 +304,14 @@ final class SchemaFactoryTest extends TestCase
         string $table = 'acl_role',
         ?string $schema = null,
         ?string $prefix = null,
+        ?string $separator = null,
     ): SchemaInterface {
         $stub = $this->createStub(SchemaInterface::class);
         $stub->method('table')->willReturn(new TableIdentifier(
-            table : $table,
-            schema: $schema,
-            prefix: $prefix,
+            table    : $table,
+            schema   : $schema,
+            prefix   : $prefix,
+            separator: $separator,
         ));
 
         return $stub;
