@@ -41,12 +41,15 @@ RUN set -eux; \
         curl \
         git \
         libicu-dev \
+        libpq-dev \
         libzip-dev \
         unzip \
     ; \
     docker-php-ext-install -j"$(nproc)" \
         intl \
         pcntl \
+        pdo_mysql \
+        pdo_pgsql \
         zip \
     ; \
     pecl install pcov \
