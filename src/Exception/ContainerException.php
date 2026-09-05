@@ -33,8 +33,8 @@ final class ContainerException extends RuntimeException implements ExceptionInte
                 'Configuration key "%s" is expected to be of type "%s" in factory: %s received type "%s"',
                 $key,
                 $expectedType,
-                $receivedType,
                 $currentFactory,
+                $receivedType,
             ),
         );
     }

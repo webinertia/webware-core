@@ -3,6 +3,7 @@
 /phpbench.json
 /clover.xml
 /coveralls-upload.json
+/coverage/
 /phpunit.xml
 /vendor/
 /.vscode
