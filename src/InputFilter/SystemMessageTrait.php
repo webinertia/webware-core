@@ -73,7 +73,7 @@ trait SystemMessageTrait
      * A "leaf" message set is a validator-key => message string map
      * (e.g. `['isEmpty' => 'Value is required...']`) with no further nesting.
      *
-     * @param array<array-key, mixed> $message
+     * @param array<array-key, string|array<array-key, string|array<array-key, string>>> $message
      */
     private function isLeafMessageSet(array $message): bool
     {

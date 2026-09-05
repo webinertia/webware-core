@@ -51,42 +51,51 @@ Database
 ## Agreed Filter Convention (interim — before webware-filter ships)
 
 Until the full schema-driven infrastructure exists, every form endpoint gets a
-`*Filter` class following this pattern:
+`*Filter` class extending Laminas's `InputFilter` and configuring its inputs in
+`init()`:
 
 ```php
-final class RuleFilter
+final class RuleDataFilter extends InputFilter
 {
-    public readonly string $roleId;
-    // ...
-    private bool $valid = false;
+    use SystemMessageTrait;
 
-    private function __construct(array $body) { /* assign + validate */ }
-
-    public static function fromRequest(ServerRequestInterface $request): self
+    public function init(): void
     {
-        return new self((array) $request->getParsedBody());
+        $this->add([
+            'name'     => 'roleId',
+            'required' => true,
+            'filters'  => [['name' => Filter\StringTrim::class]],
+        ]);
+        // ...
     }
-
-    public function isValid(): bool { return $this->valid; }
-
-    public function getValues(): array { /* keyed to command param names */ }
 }
 ```
 
 **Hard rules:**
-1. `(array)` cast lives **only** in `fromRequest()` — never in middleware
-2. `isValid()` is the **only** gate — middleware never inspects individual properties
-3. `getValues()` keys **must** match the target command's constructor parameter names exactly
+1. `(array)` cast lives **only** at the call site where the parsed body is handed
+   to `validate()` — never elsewhere in middleware
+2. `validate()->valid()` is the **only** gate — middleware never inspects individual properties
+3. `validate()->value()` keys **must** match the target command's constructor parameter names exactly
 4. No filter logic outside the filter class — ever
 
 Middleware pattern:
 ```php
-$filter = RuleFilter::fromRequest($request);
-if (! $filter->isValid()) {
+$filter = $filterManager->get(RuleDataFilter::class);
+$filterResult = $filter->validate(is_array($body) ? $body : []);
+
+if (! $filterResult->valid()) {
+    $messenger?->warning($filter->getSystemMessage($filterResult->getMessages()));
     return $handler->handle($request); // early return, no CommandResult attribute
 }
-$result = $this->commandBus->handle(new SaveRuleCommand(...$filter->getValues()));
+
+$result = $this->commandBus->handle(new SaveRuleCommand(...$filterResult->value()));
 ```
+
+> `InputFilter::validate(iterable $data): InputFilterValidationResult` is the
+> laminas-inputfilter 3.0 API. `isValid()` / `getValues()` / `getMessages()` on
+> the filter itself are deprecated (the old stateful API) and will be removed in
+> 4.0. Always go through the immutable result: `valid()`, `value()`,
+> `getMessages()`.
 
 ---
 
@@ -233,17 +242,17 @@ AggregateFilterFactory::fromTable(string $table, AdapterInterface $adapter)
         │   $filterChain = FilterManager::get($dataType, $col)
         │   configure chain: MaxLength, InArray, Digits etc from ColumnObject methods
         │
-        └─ return AggregateFilter (isValid() / getValues())
+        └─ return AggregateFilter (validate() → InputFilterValidationResult)
 ```
 
 ### Laminas Interoperability
 
-`webware-filter` defines its own `InputFilterInterface` mirroring the Laminas
-`InputFilterInterface` signatures exactly:
-- `setData(iterable $data): void`
-- `isValid(): bool`
-- `getValues(): array`
-- `getMessages(): array`
+`webware-filter` defines its own `InputFilterInterface` mirroring the
+laminas-inputfilter 3.0 `InputFilterInterface` signatures exactly:
+- `validate(iterable $data, array $context = []): InputFilterValidationResult`
+- `InputFilterValidationResult::valid(): bool`
+- `InputFilterValidationResult::value(): array`
+- `InputFilterValidationResult::getMessages(): ErrorMessages`
 
 When `laminas/laminas-inputfilter` ships a release compatible with
 `laminas/laminas-servicemanager` v4, `webware-filter` makes its interface extend
@@ -262,9 +271,9 @@ orchestrator configuration:
 ['role_id' => 'roleId', 'resource_id' => 'resourceId', 'rule_type' => 'type']
 ```
 
-By convention, `getValues()` on any filter class returns keys matching the target
-command's constructor parameter names exactly, so the command can be constructed
-with `new SaveRuleCommand(...$filter->getValues())`.
+By convention, `validate()->value()` on any filter class returns keys matching
+the target command's constructor parameter names exactly, so the command can be
+constructed with `new SaveRuleCommand(...$filterResult->value())`.
 
 ---
 
