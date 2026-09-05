@@ -76,6 +76,23 @@ final class HttpMethodProcessorTraitTest extends TestCase
         $this->middleware->process($request, $handler);
     }
 
+    #[Test]
+    public function verbMethodsArePubliclyCallable(): void
+    {
+        $middleware = new class() implements MiddlewareInterface {
+            use HttpMethodProcessorTrait;
+        };
+
+        $request = new ServerRequest([], [], '/', 'GET');
+        $handler = $this->createStub(RequestHandlerInterface::class);
+        $handler->method('handle')->willReturn(new EmptyResponse());
+
+        self::assertInstanceOf(ResponseInterface::class, $middleware->processGet($request, $handler));
+        self::assertInstanceOf(ResponseInterface::class, $middleware->processPost($request, $handler));
+        self::assertInstanceOf(ResponseInterface::class, $middleware->processPatch($request, $handler));
+        self::assertInstanceOf(ResponseInterface::class, $middleware->processDelete($request, $handler));
+    }
+
     #[Override]
     protected function setUp(): void
     {
