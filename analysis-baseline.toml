@@ -1,2 +1,25 @@
 variant = "loose"
-issues = []
+
+[[issues]]
+file = "src/SchemaFactory.php"
+code = "impossible-assignment"
+message = "Invalid assignment: the right-hand side has type `never` and cannot produce a value."
+count = 2
+
+[[issues]]
+file = "src/SchemaFactory.php"
+code = "impossible-condition"
+message = "Redundant ternary operator: condition is always falsy."
+count = 2
+
+[[issues]]
+file = "src/SchemaFactory.php"
+code = "non-existent-class-constant"
+message = "Class-like constant `SCHEMA` does not exist."
+count = 4
+
+[[issues]]
+file = "src/SchemaFactory.php"
+code = "redundant-comparison"
+message = "Redundant `===` comparison: left-hand side is never identical to right-hand side."
+count = 2

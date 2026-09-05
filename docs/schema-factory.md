@@ -7,10 +7,9 @@ _Authored: 2026-09-05_
 ## Problem
 
 Database table and schema names leak into the application layer as raw strings
-— `Schema::Rules->table()` returned an *unprefixed* `PhpDb\Sql\TableIdentifier`,
-and there was no way for an application to apply an app-wide table prefix (or
-redirect a backup into a different schema) without hardcoding strings at every
-call site.
+— a schema enum carried only an *unprefixed* table name, and there was no way
+for an application to apply an app-wide table prefix (or redirect a backup into
+a different schema) without hardcoding strings at every call site.
 
 This document defines `Webware\Core\SchemaFactory`, the single place where
 application configuration meets the `Webware\Core\SchemaInterface` contract.
@@ -21,24 +20,23 @@ application configuration meets the `Webware\Core\SchemaInterface` contract.
 
 ### `SchemaInterface`
 
-The source of truth for the *default* identifier. An implementation (typically a
-string-backed enum) maps each logical table to its unprefixed name and optional
-schema:
+A marker contract for string-backed enums. Each case value is an unprefixed
+table name; the optional `SCHEMA` constant declares the schema identifier shared
+by every table in the enum:
 
 ```php
 enum Schema: string implements SchemaInterface
 {
     case Rules = 'acl_rule';
 
-    public function table(): TableIdentifier
-    {
-        return new TableIdentifier(table: $this->value);
-    }
+    public const string SCHEMA = 'public';
 }
 ```
 
-The interface is deliberately config-free: it knows the table's *identity*, not
-the environment's prefix/schema policy.
+The interface is deliberately config-free: it knows the table's *identity*
+(its name and, via `SCHEMA`, its schema), not the environment's prefix policy.
+Enums with no explicit schema omit the constant, inheriting the empty default
+(the connection's default schema).
 
 ### `SchemaFactory`
 
@@ -50,14 +48,14 @@ from the `config` service.
 final readonly class SchemaFactory
 {
     public function __invoke(
-        SchemaInterface $schema,
+        BackedEnum&SchemaInterface $schema,
         ?string $schemaName = null,
         ?string $prefix = null,
         ?string $separator = null,
     ): TableIdentifier;
 
     public function backup(
-        SchemaInterface $schema,
+        BackedEnum&SchemaInterface $schema,
         ?string $schemaName = null,
         ?string $prefix = null,
         ?string $separator = null,
@@ -146,17 +144,17 @@ Resolution picks the first non-null value. Highest first.
 
 | Field | 1 | 2 | 3 | 4 |
 |-------|---|---|---|---|
-| prefix | call-time `$prefix` | `prefixes[table]` | `prefix` | `SchemaInterface` |
-| schema | call-time `$schemaName` | `schemas[table]` | `schema` | `SchemaInterface` |
-| separator | call-time `$separator` | `separator` | `SchemaInterface` | `_` |
+| prefix | call-time `$prefix` | `prefixes[table]` | `prefix` | — |
+| schema | call-time `$schemaName` | `schemas[table]` | `schema` | `SCHEMA` const |
+| separator | call-time `$separator` | `separator` | `_` | — |
 
 ### Backup (`backup`)
 
-| Field | 1 | 2 | 3 | 4 |
-|-------|---|---|---|---|
-| prefix | call-time `$prefix` | `backup_prefix` | `SchemaInterface` | — |
-| schema | call-time `$schemaName` | `backup_schema` | `schema` | `SchemaInterface` |
-| separator | call-time `$separator` | `separator` | `SchemaInterface` | `_` |
+| Field | 1 | 2 | 3 | 4 | 5 |
+|-------|---|---|---|---|---|
+| prefix | call-time `$prefix` | `backup_prefix` | — | — | — |
+| schema | call-time `$schemaName` | `schemas[table]` | `backup_schema` | `schema` | `SCHEMA` const |
+| separator | call-time `$separator` | `separator` | `_` | — | — |
 
 The backup prefix is **independent** of the live prefix: with `backup_prefix:
 'bck'`, backing up `acl_role` yields `bck_acl_role`, never `bck_ww_acl_role`.
@@ -211,8 +209,9 @@ $backup = $schemaFactory->backup(Schema::Rules, schemaName: 'archive');
 
 ## Relationship to phpdb
 
-`SchemaFactory` returns phpdb's `PhpDb\Sql\TableIdentifier`, preserving any
-schema the `SchemaInterface` already carries and layering the configured prefix.
+`SchemaFactory` returns phpdb's `PhpDb\Sql\TableIdentifier`, resolving the
+schema from the enum's `SCHEMA` constant (or configuration) and layering the
+configured prefix.
 The `Schema` naming (rather than `Table`) is deliberate: a table identifier is
 one member of a schema, and "schema" is the addressable namespace across every
 RDBMS phpdb targets — MySQL/MariaDB (`database` synonym), PostgreSQL, SQLite

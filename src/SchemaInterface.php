@@ -4,12 +4,22 @@ declare(strict_types=1);
 
 namespace Webware\Core;
 
-use PhpDb\Sql\TableIdentifier;
-
 /**
+ * Marker contract for schema enums.
+ *
+ * A string-backed enum whose case values are unprefixed table names. Override
+ * the {@see self::SCHEMA} constant to declare the schema identifier shared by
+ * every table in the enum, or leave it as an empty string for the connection
+ * default schema.
+ *
  * @api
  */
 interface SchemaInterface
 {
-    public function table(): TableIdentifier;
+    /**
+     * The schema identifier shared by every table in the enum.
+     *
+     * An empty string means "no explicit schema" (use the connection default).
+     */
+    public const string SCHEMA = '';
 }

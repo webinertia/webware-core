@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Webware\Core;
 
+use BackedEnum;
 use PhpDb\Sql\Exception\InvalidArgumentException;
 use PhpDb\Sql\TableIdentifier;
 use Psl\Type;
@@ -14,17 +15,17 @@ use Psl\Type;
  * optional schema so raw string table/schema identifiers never leak into the
  * application layer.
  *
- * The factory is schema-driven: the {@see SchemaInterface} is the single
- * source of truth for the default identifier (table name, schema, separator
- * and its own optional prefix). Configuration — supplied under the
- * `SchemaInterface::class` top-level config key — layers app-wide defaults and
- * per-table overrides on top of it.
+ * The factory is schema-driven: the {@see SchemaInterface} enum supplies the
+ * unprefixed table name (its backing value) and, through the
+ * {@see SchemaInterface::SCHEMA} constant, the enum-wide schema identifier.
+ * Configuration — supplied under the `SchemaInterface::class` top-level config
+ * key — layers app-wide defaults and per-table overrides on top of it.
  *
  * Live identifier precedence, highest first:
  *
- * - prefix    : call-time `$prefix` > config `prefixes[$table]` > config `prefix` > SchemaInterface
- * - schema    : call-time `$schemaName` > config `schemas[$table]` > config `schema` > SchemaInterface
- * - separator : call-time `$separator` > config `separator` > SchemaInterface > `_`
+ * - prefix    : call-time `$prefix` > config `prefixes[$table]` > config `prefix`
+ * - schema    : call-time `$schemaName` > config `schemas[$table]` > config `schema` > `SchemaInterface::SCHEMA`
+ * - separator : call-time `$separator` > config `separator` > `_`
  *
  * {@see self::backup()} applies the dedicated `backup_prefix` / `backup_schema`
  * configuration instead, e.g. persisting a `bck_*` copy of a table in a
@@ -33,9 +34,9 @@ use Psl\Type;
  *
  * @import-type SchemaConfig from ConfigProvider
  *
- * Resolution applies a four-level precedence (call-time, per-table, app-wide,
- * SchemaInterface) to prefix, schema and separator independently, so the class
- * branches heavily by design.
+ * Resolution applies a layered precedence (call-time, per-table, app-wide,
+ * then the enum constant) to prefix, schema and separator independently, so
+ * the class branches heavily by design.
  *
  * @mago-expect lint:cyclomatic-complexity
  *
@@ -83,22 +84,23 @@ final readonly class SchemaFactory
      * `acl_role` with `backup_prefix: 'bck'` yields `bck_acl_role`.
      *
      * @throws InvalidArgumentException If an override or configured value is an empty string.
+     * @throws Type\Exception\AssertException If the enum value is not a non-empty string.
      */
     public function backup(
-        SchemaInterface $schema,
+        BackedEnum&SchemaInterface $schema,
         ?string $schemaName = null,
         ?string $prefix = null,
         ?string $separator = null,
     ): TableIdentifier {
-        $base    = $schema->table();
-        $name    = $base->getUnprefixedTable();
-        $schemas = $this->config['schemas'] ?? [];
+        $name       = Type\non_empty_string()->assert($schema->value);
+        $enumSchema = '' === $schema::SCHEMA ? null : $schema::SCHEMA;
+        $schemas    = $this->config['schemas'] ?? [];
 
         return new TableIdentifier(
             table    : $name,
-            schema   : $schemaName ?? $schemas[$name] ?? $this->config['backup_schema'] ?? $this->config['schema'] ?? $base->getSchema(),
-            prefix   : $prefix ?? $this->config['backup_prefix'] ?? $base->getPrefix(),
-            separator: $separator ?? $this->config['separator'] ?? $base->getSeparator(),
+            schema   : $schemaName ?? $schemas[$name] ?? $this->getBackupSchema() ?? $this->getSchema() ?? $enumSchema,
+            prefix   : $prefix ?? $this->getBackupPrefix(),
+            separator: $separator ?? $this->getSeparator(),
         );
     }
 
@@ -129,23 +131,24 @@ final readonly class SchemaFactory
 
     /**
      * @throws InvalidArgumentException If an override or configured value is an empty string.
+     * @throws Type\Exception\AssertException If the enum value is not a non-empty string.
      */
     public function __invoke(
-        SchemaInterface $schema,
+        BackedEnum&SchemaInterface $schema,
         ?string $schemaName = null,
         ?string $prefix = null,
         ?string $separator = null,
     ): TableIdentifier {
-        $base     = $schema->table();
-        $name     = $base->getUnprefixedTable();
-        $prefixes = $this->config['prefixes'] ?? [];
-        $schemas  = $this->config['schemas'] ?? [];
+        $name       = Type\non_empty_string()->assert($schema->value);
+        $enumSchema = '' === $schema::SCHEMA ? null : $schema::SCHEMA;
+        $prefixes   = $this->config['prefixes'] ?? [];
+        $schemas    = $this->config['schemas'] ?? [];
 
         return new TableIdentifier(
             table    : $name,
-            schema   : $schemaName ?? $schemas[$name] ?? $this->config['schema'] ?? $base->getSchema(),
-            prefix   : $prefix ?? $prefixes[$name] ?? $this->config['prefix'] ?? $base->getPrefix(),
-            separator: $separator ?? $this->config['separator'] ?? $base->getSeparator(),
+            schema   : $schemaName ?? $schemas[$name] ?? $this->getSchema() ?? $enumSchema,
+            prefix   : $prefix ?? $prefixes[$name] ?? $this->getPrefix(),
+            separator: $separator ?? $this->getSeparator(),
         );
     }
 }
