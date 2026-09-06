@@ -8,7 +8,7 @@ namespace Webware\Core;
  * Marker contract for schema enums.
  *
  * A string-backed enum whose case values are unprefixed table names. Override
- * the {@see self::SCHEMA} constant to declare the schema identifier shared by
+ * the {@see self::NAME} constant to declare the schema identifier shared by
  * every table in the enum, or leave it as an empty string for the connection
  * default schema.
  *
@@ -21,5 +21,5 @@ interface SchemaInterface
      *
      * An empty string means "no explicit schema" (use the connection default).
      */
-    public const string SCHEMA = '';
+    public const string NAME = '';
 }
