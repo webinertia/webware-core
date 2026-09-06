@@ -15,7 +15,7 @@ count = 2
 [[issues]]
 file = "src/SchemaFactory.php"
 code = "non-existent-class-constant"
-message = "Class-like constant `SCHEMA` does not exist."
+message = "Class-like constant `NAME` does not exist."
 count = 4
 
 [[issues]]

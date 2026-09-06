@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace Webware\Core;
 
+use PhpDb\Sql\TableIdentifier;
+
 /**
  * @type Dependencies = array{
  *      factories: array<class-string, class-string>
@@ -34,18 +36,12 @@ namespace Webware\Core;
  */
 final class ConfigProvider
 {
-    public const string PREFIX_KEY = 'prefix';
-
-    public const string SEPARATOR_KEY = 'separator';
-
-    public const string SCHEMA_KEY = 'schema';
-
-    public const string PREFIXES_KEY = 'prefixes';
-
-    public const string SCHEMAS_KEY = 'schemas';
-
+    public const string PREFIX_KEY        = 'prefix';
+    public const string SEPARATOR_KEY     = 'separator';
+    public const string SCHEMA_KEY        = 'schema';
+    public const string PREFIXES_KEY      = 'prefixes';
+    public const string SCHEMAS_KEY       = 'schemas';
     public const string BACKUP_PREFIX_KEY = 'backup_prefix';
-
     public const string BACKUP_SCHEMA_KEY = 'backup_schema';
 
     /**
@@ -66,7 +62,9 @@ final class ConfigProvider
      */
     public function getSchemaConfig(): array
     {
-        return [];
+        return [
+            self::SEPARATOR_KEY => TableIdentifier::SEPARATOR,
+        ];
     }
 
     /**

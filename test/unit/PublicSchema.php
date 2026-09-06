@@ -10,5 +10,5 @@ enum PublicSchema: string implements SchemaInterface
 {
     case Role = 'acl_role';
 
-    public const string SCHEMA = 'public';
+    public const string NAME = 'public';
 }

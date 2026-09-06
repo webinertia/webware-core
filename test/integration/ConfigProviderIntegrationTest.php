@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace WebwareTestIntegration\Core;
 
+use PhpDb\Sql\TableIdentifier;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\Test;
@@ -36,12 +37,18 @@ final class ConfigProviderIntegrationTest extends TestCase
             $dependencies['factories'][SchemaFactory::class],
         );
 
-        self::assertSame([], $provider->getSchemaConfig());
+        self::assertSame(
+            [ConfigProvider::SEPARATOR_KEY => TableIdentifier::SEPARATOR],
+            $provider->getSchemaConfig(),
+        );
 
         $config = $provider();
 
         self::assertArrayHasKey('dependencies', $config);
         self::assertArrayHasKey(SchemaInterface::class, $config);
-        self::assertSame([], $config[SchemaInterface::class]);
+        self::assertSame(
+            [ConfigProvider::SEPARATOR_KEY => TableIdentifier::SEPARATOR],
+            $config[SchemaInterface::class],
+        );
     }
 }

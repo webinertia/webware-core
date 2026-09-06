@@ -17,14 +17,14 @@ use Psl\Type;
  *
  * The factory is schema-driven: the {@see SchemaInterface} enum supplies the
  * unprefixed table name (its backing value) and, through the
- * {@see SchemaInterface::SCHEMA} constant, the enum-wide schema identifier.
+ * {@see SchemaInterface::NAME} constant, the enum-wide schema identifier.
  * Configuration — supplied under the `SchemaInterface::class` top-level config
  * key — layers app-wide defaults and per-table overrides on top of it.
  *
  * Live identifier precedence, highest first:
  *
  * - prefix    : call-time `$prefix` > config `prefixes[$table]` > config `prefix`
- * - schema    : call-time `$schemaName` > config `schemas[$table]` > config `schema` > `SchemaInterface::SCHEMA`
+ * - schema    : call-time `$schemaName` > config `schemas[$table]` > config `schema` > `SchemaInterface::NAME`
  * - separator : call-time `$separator` > config `separator` > `_`
  *
  * {@see self::backup()} applies the dedicated `backup_prefix` / `backup_schema`
@@ -93,7 +93,7 @@ final readonly class SchemaFactory
         ?string $separator = null,
     ): TableIdentifier {
         $name       = Type\non_empty_string()->assert($schema->value);
-        $enumSchema = '' === $schema::SCHEMA ? null : $schema::SCHEMA;
+        $enumSchema = '' === $schema::NAME ? null : $schema::NAME;
         $schemas    = $this->config['schemas'] ?? [];
 
         return new TableIdentifier(
@@ -140,7 +140,7 @@ final readonly class SchemaFactory
         ?string $separator = null,
     ): TableIdentifier {
         $name       = Type\non_empty_string()->assert($schema->value);
-        $enumSchema = '' === $schema::SCHEMA ? null : $schema::SCHEMA;
+        $enumSchema = '' === $schema::NAME ? null : $schema::NAME;
         $prefixes   = $this->config['prefixes'] ?? [];
         $schemas    = $this->config['schemas'] ?? [];
 

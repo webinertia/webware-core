@@ -21,7 +21,7 @@ application configuration meets the `Webware\Core\SchemaInterface` contract.
 ### `SchemaInterface`
 
 A marker contract for string-backed enums. Each case value is an unprefixed
-table name; the optional `SCHEMA` constant declares the schema identifier shared
+table name; the optional `NAME` constant declares the schema identifier shared
 by every table in the enum:
 
 ```php
@@ -29,12 +29,12 @@ enum Schema: string implements SchemaInterface
 {
     case Rules = 'acl_rule';
 
-    public const string SCHEMA = 'public';
+    public const string NAME = 'public';
 }
 ```
 
 The interface is deliberately config-free: it knows the table's *identity*
-(its name and, via `SCHEMA`, its schema), not the environment's prefix policy.
+(its name and, via `NAME`, its schema), not the environment's prefix policy.
 Enums with no explicit schema omit the constant, inheriting the empty default
 (the connection's default schema).
 
@@ -70,9 +70,9 @@ configuration.
 ### `SchemaFactoryFactory`
 
 The DI factory that reads `config[SchemaInterface::class]`, validates the shape
-with `Psl\Type\shape()`, and returns a configured `SchemaFactory`. When no
-config is present the factory is created with all defaults (no prefix, `_`
-separator, no schema).
+with `Psl\Type\shape()`, and returns a configured `SchemaFactory`. The
+`ConfigProvider` ships the default configuration (the `_` separator);
+applications merge their overrides on top of it.
 
 ### `ConfigProvider`
 
@@ -145,7 +145,7 @@ Resolution picks the first non-null value. Highest first.
 | Field | 1 | 2 | 3 | 4 |
 |-------|---|---|---|---|
 | prefix | call-time `$prefix` | `prefixes[table]` | `prefix` | — |
-| schema | call-time `$schemaName` | `schemas[table]` | `schema` | `SCHEMA` const |
+| schema | call-time `$schemaName` | `schemas[table]` | `schema` | `NAME` const |
 | separator | call-time `$separator` | `separator` | `_` | — |
 
 ### Backup (`backup`)
@@ -153,7 +153,7 @@ Resolution picks the first non-null value. Highest first.
 | Field | 1 | 2 | 3 | 4 | 5 |
 |-------|---|---|---|---|---|
 | prefix | call-time `$prefix` | `backup_prefix` | — | — | — |
-| schema | call-time `$schemaName` | `schemas[table]` | `backup_schema` | `schema` | `SCHEMA` const |
+| schema | call-time `$schemaName` | `schemas[table]` | `backup_schema` | `schema` | `NAME` const |
 | separator | call-time `$separator` | `separator` | `_` | — | — |
 
 The backup prefix is **independent** of the live prefix: with `backup_prefix:
@@ -210,7 +210,7 @@ $backup = $schemaFactory->backup(Schema::Rules, schemaName: 'archive');
 ## Relationship to phpdb
 
 `SchemaFactory` returns phpdb's `PhpDb\Sql\TableIdentifier`, resolving the
-schema from the enum's `SCHEMA` constant (or configuration) and layering the
+schema from the enum's `NAME` constant (or configuration) and layering the
 configured prefix.
 The `Schema` naming (rather than `Table`) is deliberate: a table identifier is
 one member of a schema, and "schema" is the addressable namespace across every
