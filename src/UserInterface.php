@@ -7,12 +7,26 @@ namespace Webware\Core;
 use Laminas\Permissions\Acl\ProprietaryInterface;
 use Laminas\Permissions\Acl\Resource\ResourceInterface;
 use Laminas\Permissions\Acl\Role\RoleInterface;
+use Mezzio\Authentication\UserInterface as MezzioUserInterface;
+use Override;
 use PhpDb\ResultSet\RowPrototypeInterface;
 
 /**
+ * Extends the Mezzio authentication contract, so a host may alias
+ * Mezzio\Authentication\UserInterface to this interface and any type hint on
+ * Mezzio's interface stays valid while migrating to webware-usermanager.
+ *
+ * The four inherited methods are redeclared only to carry docblocks; their
+ * signatures must stay variance-compatible with Mezzio's.
+ *
  * @api
  */
-interface UserInterface extends RoleInterface, ResourceInterface, ProprietaryInterface, RowPrototypeInterface
+interface UserInterface extends
+    MezzioUserInterface,
+    RoleInterface,
+    ResourceInterface,
+    ProprietaryInterface,
+    RowPrototypeInterface
 {
     final public const string GUEST_ROLE = 'Guest';
     public const string DATETIME_FORMAT = 'Y-m-d H:i:s';
@@ -20,26 +34,33 @@ interface UserInterface extends RoleInterface, ResourceInterface, ProprietaryInt
     /**
      * Get a detail $name if present, $default otherwise.
      */
+    #[Override]
     public function getDetail(string $name, mixed $default = null): mixed;
 
     /**
      * Get all the details.
      *
-     * @return array<string, mixed>|null
+     * @return array<string, mixed>
      */
-    public function getDetails(): ?array;
+    #[Override]
+    public function getDetails(): array;
 
     /**
      * Get the unique user identity (id, username, email address …)
      */
-    public function getIdentity(): ?string;
+    #[Override]
+    public function getIdentity(): string;
 
     /**
      * Get all user roles.
      *
-     * @return RoleInterface[]|string[]|null
+     * Role names, not RoleInterface instances — Laminas ACL resolves the role
+     * via getRoleId(), so the aggregate object is what carries ownership.
+     *
+     * @return iterable<int|string, string>
      */
-    public function getRoles(): ?array;
+    #[Override]
+    public function getRoles(): iterable;
 
     /**
      * Create a new instance of this user with the given id.
