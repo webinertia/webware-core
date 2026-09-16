@@ -17,8 +17,6 @@ interface UserInterface extends RoleInterface, ResourceInterface, ProprietaryInt
     final public const string GUEST_ROLE = 'Guest';
     public const string DATETIME_FORMAT = 'Y-m-d H:i:s';
 
-    public int|string|null $id { get; }
-
     /**
      * Get a detail $name if present, $default otherwise.
      */
