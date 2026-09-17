@@ -21,6 +21,8 @@ use PhpDb\ResultSet\RowPrototypeInterface;
  *
  * @api
  */
+// @mago-expect lint:too-many-methods - accepted: the user row contract is a single aggregate; splitting it would scatter the builders their callers use together.
+// @mago-expect lint:no-boolean-flag-parameter - accepted: withActive(bool) mirrors the entity's builder API and the with* convention, where a value change stays with*.
 interface UserInterface extends
     MezzioUserInterface,
     RoleInterface,
@@ -63,6 +65,36 @@ interface UserInterface extends
     public function getRoles(): iterable;
 
     /**
+     * Hydrate this user from a row of data.
+     *
+     * Inherited from RowPrototypeInterface; redeclared only to carry this docblock.
+     *
+     * @param array<array-key, mixed> $data
+     */
+    #[Override]
+    public function populate(array $data): RowPrototypeInterface;
+
+    /**
+     * Return a copy of this user with the given active flag.
+     */
+    public function withActive(bool $active): static;
+
+    /**
+     * Return a copy of this user with the given detail set.
+     */
+    public function withDetail(string $name, mixed $value): static;
+
+    /**
+     * Return a copy of this user with the given email address.
+     */
+    public function withEmail(string $email): static;
+
+    /**
+     * Return a copy of this user with the given first name.
+     */
+    public function withFirstName(string $firstName): static;
+
+    /**
      * Create a new instance of this user with the given id.
      * Allows for a user to be created without an id,
      * and then have the id set after persisting to the database.
@@ -70,4 +102,21 @@ interface UserInterface extends
      * @return static
      */
     public function withId(int|string|null $id): static;
+
+    /**
+     * Return a copy of this user with the given last name.
+     */
+    public function withLastName(string $lastName): static;
+
+    /**
+     * Return a copy of this user with the given password hash.
+     */
+    public function withPasswordHash(string $passwordHash): static;
+
+    /**
+     * Return a copy of this user with the given role id or role ids.
+     *
+     * @param RoleInterface[]|string[]|string $roleId
+     */
+    public function withRoleId(array|string $roleId): static;
 }
