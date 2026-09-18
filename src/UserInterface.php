@@ -95,13 +95,16 @@ interface UserInterface extends
     public function withFirstName(string $firstName): static;
 
     /**
-     * Create a new instance of this user with the given id.
-     * Allows for a user to be created without an id,
-     * and then have the id set after persisting to the database.
+     * Return a copy of this user with the given identity.
      *
-     * @return static
+     * The identity is whatever this implementation nominates — an email address,
+     * a username, an id. It is the value getIdentity() returns, and it is not
+     * assumed to be an email address.
+     *
+     * The row id is not settable here: it is assigned by the constructor and by
+     * persisting the row, never by a builder.
      */
-    public function withId(int|string|null $id): static;
+    public function withIdentity(string $identity): static;
 
     /**
      * Return a copy of this user with the given last name.
