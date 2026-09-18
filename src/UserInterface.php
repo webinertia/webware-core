@@ -114,9 +114,13 @@ interface UserInterface extends
     public function withPasswordHash(string $passwordHash): static;
 
     /**
-     * Return a copy of this user with the given role id or role ids.
+     * Return a copy of this user with the given role id.
      *
-     * @param RoleInterface[]|string[]|string $roleId
+     * A user carries exactly one role. Laminas ACL resolves that role through
+     * getRoleId(), so the role id is a plain string here and the array Mezzio's
+     * contract asks for exists only on the getRoles() return.
+     *
+     * @param string $roleId
      */
-    public function withRoleId(array|string $roleId): static;
+    public function withRoleId(string $roleId): static;
 }
