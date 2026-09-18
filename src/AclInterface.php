@@ -12,8 +12,6 @@ use Laminas\Permissions\Acl\Resource\ResourceInterface;
  */
 interface AclInterface extends LaminasAclInterface
 {
-    final public const string DEVELOPER_ROLE_ID = 'Developer';
-
     /**
      * Returns the resource ID of the direct parent of $resourceId, or null if it has none.
      */
