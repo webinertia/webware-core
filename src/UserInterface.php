@@ -30,7 +30,6 @@ interface UserInterface extends
     ProprietaryInterface,
     RowPrototypeInterface
 {
-    final public const string GUEST_ROLE = 'Guest';
     public const string DATETIME_FORMAT = 'Y-m-d H:i:s';
 
     /**
