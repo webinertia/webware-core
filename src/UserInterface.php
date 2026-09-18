@@ -20,6 +20,25 @@ use PhpDb\ResultSet\RowPrototypeInterface;
  * The four inherited methods are redeclared only to carry docblocks; their
  * signatures must stay variance-compatible with Mezzio's.
  *
+ * The session payload is the toArray() / populate() round trip: keys are the
+ * constructor parameter names, spread as named arguments, and the shape is
+ * unsealed so a host may add its own fields.
+ *
+ * @type UserPrototype = array{
+ *     id?: int|string|null,
+ *     roleId?: string,
+ *     firstName?: ?string,
+ *     lastName?: ?string,
+ *     email?: ?string,
+ *     passwordHash?: ?string,
+ *     active?: int|bool|null,
+ *     createdAt?: DateTimeImmutable|array<array-key, mixed>|string|null,
+ *     verificationToken?: ?string,
+ *     tokenCreatedAt?: DateTimeImmutable|array<array-key, mixed>|string|null,
+ *     details?: array<string, mixed>|string|null,
+ *     ...<string, mixed>,
+ * }
+ *
  * @api
  */
 // @mago-expect lint:too-many-methods,too-many-properties - accepted: the user row contract is a single aggregate — the builders and the row's columns belong on it together.
@@ -104,10 +123,20 @@ interface UserInterface extends
      *
      * Inherited from RowPrototypeInterface; redeclared only to carry this docblock.
      *
-     * @param array<array-key, mixed> $data
+     * @param array<array-key, mixed> $data Keys are the UserPrototype shape.
      */
     #[Override]
     public function populate(array $data): RowPrototypeInterface;
+
+    /**
+     * Serialize this user for the session payload.
+     *
+     * Inherited from RowPrototypeInterface; redeclared only to carry this docblock.
+     *
+     * @return UserPrototype
+     */
+    #[Override]
+    public function toArray(): array;
 
     /**
      * Return a copy of this user with the given active flag.
