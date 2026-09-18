@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Webware\Core;
 
+use DateTimeImmutable;
 use Laminas\Permissions\Acl\ProprietaryInterface;
 use Laminas\Permissions\Acl\Resource\ResourceInterface;
 use Laminas\Permissions\Acl\Role\RoleInterface;
@@ -21,7 +22,7 @@ use PhpDb\ResultSet\RowPrototypeInterface;
  *
  * @api
  */
-// @mago-expect lint:too-many-methods - accepted: the user row contract is a single aggregate; splitting it would scatter the builders their callers use together.
+// @mago-expect lint:too-many-methods,too-many-properties - accepted: the user row contract is a single aggregate — the builders and the row's columns belong on it together.
 // @mago-expect lint:no-boolean-flag-parameter - accepted: withActive(bool) mirrors the entity's builder API and the with* convention, where a value change stays with*.
 interface UserInterface extends
     MezzioUserInterface,
@@ -31,6 +32,41 @@ interface UserInterface extends
     RowPrototypeInterface
 {
     public const string DATETIME_FORMAT = 'Y-m-d H:i:s';
+
+    /** Primary key; null until persisted. */
+    public int|string|null $id { get; }
+
+    /** A role name, not a RoleInterface. */
+    public string $roleId { get; }
+
+    public ?string $firstName { get; }
+
+    public ?string $lastName { get; }
+
+    /** Lowercased by the implementation. */
+    public ?string $email { get; }
+
+    /** Server-side only. */
+    public ?string $passwordHash { get; }
+
+    /** Read side of withActive(). */
+    public int|bool|null $active { get; }
+
+    /** @var DateTimeImmutable|array<array-key, mixed>|string|null */
+    public DateTimeImmutable|array|string|null $createdAt { get; }
+
+    /** Server-side only. */
+    public ?string $verificationToken { get; }
+
+    /** @var DateTimeImmutable|array<array-key, mixed>|string|null */
+    public DateTimeImmutable|array|string|null $tokenCreatedAt { get; }
+
+    /**
+     * Unmapped row columns; getDetail() reads only this.
+     *
+     * @var array<string, mixed>|null
+     */
+    public array|string|null $details { get; }
 
     /**
      * Get a detail $name if present, $default otherwise.
