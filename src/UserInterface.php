@@ -33,6 +33,19 @@ interface UserInterface extends
     public const string DATETIME_FORMAT = 'Y-m-d H:i:s';
 
     /**
+     * Whether this user account is active.
+     *
+     * The declared type mirrors the row rather than the concept: a database column
+     * delivers 1/0 as an int, a hydrated row delivers bool, and the value is null
+     * until one is set. Reading applies the implementation's normalization, so an
+     * unset value reads as false. This is the read side of withActive().
+     *
+     * A get hook only — the write side is withActive(), so an implementation keeps
+     * its setter private.
+     */
+    public int|bool|null $active { get; }
+
+    /**
      * Get a detail $name if present, $default otherwise.
      */
     #[Override]
