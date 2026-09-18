@@ -64,6 +64,13 @@ interface UserInterface extends
     public function getRoles(): iterable;
 
     /**
+     * Whether this user account is active.
+     *
+     * The read side of withActive().
+     */
+    public function isActive(): bool;
+
+    /**
      * Hydrate this user from a row of data.
      *
      * Inherited from RowPrototypeInterface; redeclared only to carry this docblock.
