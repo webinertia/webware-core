@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace WebwareTestIntegration\Core;
 
+use Mezzio\Authentication\UserInterface as MezzioUserInterface;
 use PhpDb\Sql\TableIdentifier;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
@@ -15,6 +16,7 @@ use Webware\Core\Container\SchemaFactoryFactory;
 use Webware\Core\Http\Middleware\AttachCoreServicesMiddleware;
 use Webware\Core\SchemaFactory;
 use Webware\Core\SchemaInterface;
+use Webware\Core\UserInterface;
 
 #[CoversClass(ConfigProvider::class)]
 #[CoversMethod(ConfigProvider::class, '__invoke')]
@@ -49,6 +51,17 @@ final class ConfigProviderIntegrationTest extends TestCase
         self::assertSame(
             [ConfigProvider::SEPARATOR_KEY => TableIdentifier::SEPARATOR],
             $config[SchemaInterface::class],
+        );
+    }
+
+    #[Test]
+    public function mezzioAuthenticationContractIsAliasedToOurUserInterface(): void
+    {
+        $dependencies = new ConfigProvider()->getDependencies();
+
+        self::assertSame(
+            UserInterface::class,
+            $dependencies['aliases'][MezzioUserInterface::class],
         );
     }
 }
