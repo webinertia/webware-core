@@ -14,10 +14,12 @@ declare(strict_types=1);
 
 namespace Webware\Core;
 
+use Mezzio\Authentication\UserInterface as MezzioUserInterface;
 use PhpDb\Sql\TableIdentifier;
 
 /**
  * @type Dependencies = array{
+ *      aliases: array<interface-string, interface-string>,
  *      factories: array<class-string, class-string>
  * }
  * @type SchemaConfig = array{
@@ -50,6 +52,14 @@ final class ConfigProvider
     public function getDependencies(): array
     {
         return [
+            // Ecosystem-wide alias: Webware\Core\UserInterface extends the Mezzio
+            // authentication contract, so anything resolving that contract — a host,
+            // or a Mezzio component — is handed our implementation instead of
+            // Mezzio's DefaultUser. webware-usermanager registers the factory under
+            // our own interface key.
+            'aliases'   => [
+                MezzioUserInterface::class => UserInterface::class,
+            ],
             'factories' => [
                 Http\Middleware\AttachCoreServicesMiddleware::class => Container\AttachCoreServicesMiddlewareFactory::class,
                 SchemaFactory::class                                => Container\SchemaFactoryFactory::class,
