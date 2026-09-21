@@ -12,11 +12,25 @@ use PHPUnit\Framework\TestCase;
 use Webware\Core\Role;
 
 use function array_map;
+use function json_encode;
 
 #[CoversClass(Role::class)]
 #[CoversMethod(Role::class, 'getRoleId')]
+#[CoversMethod(Role::class, 'getRoles')]
+#[CoversMethod(Role::class, 'jsonSerialize')]
 final class RoleTest extends TestCase
 {
+    #[Test]
+    public function everySeedRoleAndParentResolvesToACase(): void
+    {
+        foreach (Role::getRoles() as $seed) {
+            self::assertNotNull(Role::tryFrom($seed['roleId']));
+            foreach ($seed['parentIds'] as $parentId) {
+                self::assertNotNull(Role::tryFrom($parentId));
+            }
+        }
+    }
+
     #[Test]
     public function exposesTheDefaultRoleNames(): void
     {
@@ -32,6 +46,32 @@ final class RoleTest extends TestCase
         foreach (Role::cases() as $role) {
             self::assertSame($role->value, $role->getRoleId());
         }
+    }
+
+    #[Test]
+    public function getRolesReturnsTheDefaultHierarchyParentsFirst(): void
+    {
+        self::assertSame(
+            [
+                ['roleId' => 'Guest', 'parentIds' => []],
+                ['roleId' => 'Member', 'parentIds' => ['Guest']],
+                ['roleId' => 'Administrator', 'parentIds' => ['Member']],
+                ['roleId' => 'Developer', 'parentIds' => ['Administrator']],
+            ],
+            Role::getRoles(),
+        );
+    }
+
+    #[Test]
+    public function jsonSerializeReturnsTheFullDefaultMapForEveryCase(): void
+    {
+        $expected = Role::getRoles();
+
+        foreach (Role::cases() as $role) {
+            self::assertSame($expected, $role->jsonSerialize());
+        }
+
+        self::assertSame(json_encode($expected), json_encode(Role::Guest));
     }
 
     #[Test]
