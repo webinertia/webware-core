@@ -7,6 +7,8 @@ namespace Webware\Core;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 
+use function str_replace;
+
 /**
  * @mago-expect analysis:class-must-be-final
  */
@@ -15,33 +17,31 @@ readonly class Configuration implements ConfigurationInterface
     private function __construct() {}
 
     /**
-     * @throws ContainerExceptionInterface
+     * Prefix for this component's routes inside the admin namespace, e.g.
+     * `admin.user.`.
+     *
+     * $adminName is the admin namespace base, resolved through webware-admin's
+     * Configuration so every component that publishes admin routes agrees on it.
      */
-    public static function getAdminRouteNamePrefix(ContainerInterface $container, string $callingFactory): string
+    public static function getAdminRouteNamePrefix(string $adminName): string
     {
-        $config = static::getConfig($container, $callingFactory);
-
-        return $config[static::ADMIN_ROUTE_NAME_PREFIX_KEY];
+        return $adminName . '.' . static::COMPONENT_NAME . '.';
     }
 
     /**
-     * @throws ContainerExceptionInterface
+     * URI segment this component's admin routes are mounted on, e.g.
+     * `admin/user-manager`.
      */
-    public static function getAdminRouteSegment(ContainerInterface $container, string $callingFactory): string
+    public static function getAdminRouteSegment(string $adminName): string
     {
-        $config = static::getConfig($container, $callingFactory);
-
-        return $config[static::ADMIN_ROUTE_SEGMENT_KEY];
+        return $adminName . '/' . static::getRouteSegment();
     }
 
     /**
+     * This component's config block, keyed by its own CONFIG_KEY.
+     *
      * @throws ContainerExceptionInterface
-     * @return array{
-     *   admin_route_name_prefix: string,
-     *   admin_route_segment: string,
-     *   route_name_prefix: string,
-     *   route_segment: string,
-     * }
+     * @return array<string, mixed>
      */
     final public static function getConfig(ContainerInterface $container, string $callingFactory): array
     {
@@ -49,29 +49,30 @@ readonly class Configuration implements ConfigurationInterface
             throw Exception\ContainerException::forMissingConfigService('config', $callingFactory);
         }
 
-        /** @var array{'webware': array{admin_route_name_prefix: string, admin_route_segment: string, route_name_prefix: string, route_segment: string}} */
+        /** @var array<string, mixed> $config */
         $config = $container->get('config');
 
-        return $config[static::CONFIG_KEY];
+        /** @var array<string, mixed> */
+        return $config[static::CONFIG_KEY] ?? [];
     }
 
     /**
-     * @throws ContainerExceptionInterface
+     * Prefix shared by every route name this component owns, e.g. `user.`.
      */
-    public static function getRouteNamePrefix(ContainerInterface $container, string $callingFactory): string
+    public static function getRouteNamePrefix(): string
     {
-        $config = static::getConfig($container, $callingFactory);
-
-        return $config[static::ROUTE_NAME_PREFIX_KEY];
+        return static::COMPONENT_NAME . '.';
     }
 
     /**
-     * @throws ContainerExceptionInterface
+     * URI segment this component's routes are mounted on, e.g. `user-manager`.
      */
-    public static function getRouteSegment(ContainerInterface $container, string $callingFactory): string
+    public static function getRouteSegment(): string
     {
-        $config = static::getConfig($container, $callingFactory);
-
-        return $config[static::ROUTE_SEGMENT_KEY];
+        return str_replace(
+            search : '.',
+            replace: '-',
+            subject: static::COMPONENT_NAME,
+        );
     }
 }
