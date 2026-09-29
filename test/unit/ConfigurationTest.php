@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Webware\Core\Configuration;
 use Webware\Core\Exception\ContainerException;
+use WebwareTest\Core\Stub\DottedComponentConfiguration;
 
 #[CoversClass(Configuration::class)]
 #[CoversMethod(Configuration::class, 'getConfig')]
@@ -22,43 +23,37 @@ final class ConfigurationTest extends TestCase
 {
     private const CONFIG = [
         'webware' => [
-            'admin_route_name_prefix' => 'webware.admin.',
-            'admin_route_segment'     => 'webware.admin',
-            'route_name_prefix'       => 'webware.',
-            'route_segment'           => 'webware',
+            'some_key' => 'some value',
         ],
     ];
 
     #[Test]
-    public function itReturnsAdminRouteNamePrefix(): void
+    public function itDashesTheComponentNameForTheRouteSegment(): void
     {
-        $container = $this->container(self::CONFIG);
-
-        self::assertSame('webware.admin.', Configuration::getAdminRouteNamePrefix($container, self::class));
+        self::assertSame('webware', Configuration::getRouteSegment());
+        self::assertSame('sales-order', DottedComponentConfiguration::getRouteSegment());
     }
 
     #[Test]
-    public function itReturnsAdminRouteSegment(): void
+    public function itDerivesTheRouteNamePrefixFromTheComponentName(): void
     {
-        $container = $this->container(self::CONFIG);
-
-        self::assertSame('webware.admin', Configuration::getAdminRouteSegment($container, self::class));
+        self::assertSame('webware.', Configuration::getRouteNamePrefix());
+        self::assertSame('sales.order.', DottedComponentConfiguration::getRouteNamePrefix());
     }
 
     #[Test]
-    public function itReturnsRouteNamePrefix(): void
+    public function itNestsTheComponentUnderTheAdminNamespace(): void
     {
-        $container = $this->container(self::CONFIG);
-
-        self::assertSame('webware.', Configuration::getRouteNamePrefix($container, self::class));
+        self::assertSame('admin.sales.order.', DottedComponentConfiguration::getAdminRouteNamePrefix('admin'));
+        self::assertSame('admin/sales-order', DottedComponentConfiguration::getAdminRouteSegment('admin'));
     }
 
     #[Test]
-    public function itReturnsRouteSegment(): void
+    public function itReturnsAnEmptyArrayWhenTheComponentBlockIsMissing(): void
     {
-        $container = $this->container(self::CONFIG);
+        $container = $this->container([]);
 
-        self::assertSame('webware', Configuration::getRouteSegment($container, self::class));
+        self::assertSame([], Configuration::getConfig($container, self::class));
     }
 
     #[Test]
@@ -78,6 +73,19 @@ final class ConfigurationTest extends TestCase
         $this->expectException(ContainerException::class);
 
         Configuration::getConfig($container, self::class);
+    }
+
+    #[Test]
+    public function itUsesTheResolvedAdminNameForTheAdminNamespace(): void
+    {
+        self::assertSame(
+            'control-panel.sales.order.',
+            DottedComponentConfiguration::getAdminRouteNamePrefix('control-panel'),
+        );
+        self::assertSame(
+            'control-panel/sales-order',
+            DottedComponentConfiguration::getAdminRouteSegment('control-panel'),
+        );
     }
 
     /**
