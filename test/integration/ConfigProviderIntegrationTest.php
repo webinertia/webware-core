@@ -5,27 +5,22 @@ declare(strict_types=1);
 namespace WebwareTestIntegration\Core;
 
 use Mezzio\Authentication\UserInterface as MezzioUserInterface;
-use PhpDb\Sql\TableIdentifier;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Webware\Core\ConfigProvider;
 use Webware\Core\Container\AttachCoreServicesMiddlewareFactory;
-use Webware\Core\Container\SchemaFactoryFactory;
 use Webware\Core\Http\Middleware\AttachCoreServicesMiddleware;
-use Webware\Core\SchemaFactory;
-use Webware\Core\SchemaInterface;
 use Webware\Core\UserInterface;
 
 #[CoversClass(ConfigProvider::class)]
 #[CoversMethod(ConfigProvider::class, '__invoke')]
 #[CoversMethod(ConfigProvider::class, 'getDependencies')]
-#[CoversMethod(ConfigProvider::class, 'getSchemaConfig')]
 final class ConfigProviderIntegrationTest extends TestCase
 {
     #[Test]
-    public function configProviderReturnsDependenciesAndSchemaConfig(): void
+    public function configProviderReturnsDependencies(): void
     {
         $provider = new ConfigProvider();
 
@@ -34,24 +29,11 @@ final class ConfigProviderIntegrationTest extends TestCase
             AttachCoreServicesMiddlewareFactory::class,
             $dependencies['factories'][AttachCoreServicesMiddleware::class],
         );
-        self::assertSame(
-            SchemaFactoryFactory::class,
-            $dependencies['factories'][SchemaFactory::class],
-        );
-
-        self::assertSame(
-            [ConfigProvider::SEPARATOR_KEY => TableIdentifier::SEPARATOR],
-            $provider->getSchemaConfig(),
-        );
 
         $config = $provider();
 
         self::assertArrayHasKey('dependencies', $config);
-        self::assertArrayHasKey(SchemaInterface::class, $config);
-        self::assertSame(
-            [ConfigProvider::SEPARATOR_KEY => TableIdentifier::SEPARATOR],
-            $config[SchemaInterface::class],
-        );
+        self::assertSame($dependencies, $config['dependencies']);
     }
 
     #[Test]
