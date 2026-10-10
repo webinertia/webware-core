@@ -41,7 +41,7 @@ use PhpDb\ResultSet\RowPrototypeInterface;
  *
  * @api
  */
-// @mago-expect lint:too-many-methods,too-many-properties - accepted: the user row contract is a single aggregate — the builders and the row's columns belong on it together.
+// @mago-expect lint:too-many-methods,too-many-properties - accepted: the user row contract is a single aggregate - the builders and the row's columns belong on it together.
 // @mago-expect lint:no-boolean-flag-parameter - accepted: withActive(bool) mirrors the entity's builder API and the with* convention, where a value change stays with*.
 interface UserInterface extends
     MezzioUserInterface,
@@ -110,7 +110,7 @@ interface UserInterface extends
     /**
      * Get all user roles.
      *
-     * Role names, not RoleInterface instances — Laminas ACL resolves the role
+     * Role names, not RoleInterface instances - Laminas ACL resolves the role
      * via getRoleId(), so the aggregate object is what carries ownership.
      *
      * @return iterable<int|string, string>
@@ -161,7 +161,7 @@ interface UserInterface extends
     /**
      * Return a copy of this user with the given identity.
      *
-     * The identity is whatever this implementation nominates — an email address,
+     * The identity is whatever this implementation nominates - an email address,
      * a username, an id. It is the value getIdentity() returns, and it is not
      * assumed to be an email address.
      *

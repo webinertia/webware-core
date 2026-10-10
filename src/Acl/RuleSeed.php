@@ -10,7 +10,7 @@ namespace Webware\Core\Acl;
  *
  * `$resourceId` is a node in the ACL resource tree:
  *
- * - a registered route name — the usual case, and the only valid case for a row
+ * - a registered route name - the usual case, and the only valid case for a row
  *   that names a `$parentResourceId`;
  * - an anchor node such as `user` or `admin.acl`, which is the unit of grant: a
  *   role allowed the anchor inherits every node beneath it. The anchor of a

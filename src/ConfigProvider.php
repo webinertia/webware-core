@@ -34,8 +34,8 @@ final class ConfigProvider
     {
         return [
             // Ecosystem-wide alias: Webware\Core\UserInterface extends the Mezzio
-            // authentication contract, so anything resolving that contract — a host,
-            // or a Mezzio component — is handed our implementation instead of
+            // authentication contract, so anything resolving that contract - a host,
+            // or a Mezzio component - is handed our implementation instead of
             // Mezzio's DefaultUser. webware-usermanager registers the factory under
             // our own interface key.
             'aliases'   => [

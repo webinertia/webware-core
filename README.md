@@ -35,7 +35,7 @@ providers in this order in `config/config.php` so the alias is the final word on
 3. `Webware\UserManager\ConfigProvider`
 
 The component installer adds providers in the order packages were installed, which is not
-necessarily this order — check `config/config.php` after installing and reorder if needed.
+necessarily this order - check `config/config.php` after installing and reorder if needed.
 Any provider that declares an entry for `Mezzio\Authentication\UserInterface` competes for
 the same service name and the last one aggregated wins, so keep the Webware providers after
 `mezzio/mezzio-authentication`, with core before usermanager.

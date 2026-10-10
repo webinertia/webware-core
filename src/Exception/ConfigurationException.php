@@ -13,7 +13,7 @@ use function sprintf;
  * the wrong type.
  *
  * Deliberately not a PSR-11 `ContainerExceptionInterface`: this is thrown where
- * a factory — or any other caller — reads the `config` service, not because the
+ * a factory - or any other caller - reads the `config` service, not because the
  * container itself failed.
  *
  * @api

@@ -1,4 +1,4 @@
-# Schema Factory — Config-Driven Table Identifiers
+# Schema Factory: Config-Driven Table Identifiers
 
 _Authored: 2026-09-05_
 
@@ -7,7 +7,7 @@ _Authored: 2026-09-05_
 ## Problem
 
 Database table and schema names leak into the application layer as raw strings
-— a schema enum carried only an *unprefixed* table name, and there was no way
+ - a schema enum carried only an *unprefixed* table name, and there was no way
 for an application to apply an app-wide table prefix (or redirect a backup into
 a different schema) without hardcoding strings at every call site.
 
@@ -120,7 +120,7 @@ return [
 | `prefixes` | `array<non-empty-string, non-empty-string>` | `[]` | live |
 | `schemas` | `array<non-empty-string, non-empty-string>` | `[]` | live |
 
-Empty-string values are rejected by the shape assertion — they are never a
+Empty-string values are rejected by the shape assertion - they are never a
 valid prefix, schema or separator. Unknown keys are also rejected, so a typo in
 config fails fast.
 
@@ -144,17 +144,17 @@ Resolution picks the first non-null value. Highest first.
 
 | Field | 1 | 2 | 3 | 4 |
 |-------|---|---|---|---|
-| prefix | call-time `$prefix` | `prefixes[table]` | `prefix` | — |
+| prefix | call-time `$prefix` | `prefixes[table]` | `prefix` | - |
 | schema | call-time `$schemaName` | `schemas[table]` | `schema` | `NAME` const |
-| separator | call-time `$separator` | `separator` | `_` | — |
+| separator | call-time `$separator` | `separator` | `_` | - |
 
 ### Backup (`backup`)
 
 | Field | 1 | 2 | 3 | 4 | 5 |
 |-------|---|---|---|---|---|
-| prefix | call-time `$prefix` | `backup_prefix` | — | — | — |
+| prefix | call-time `$prefix` | `backup_prefix` | - | - | - |
 | schema | call-time `$schemaName` | `schemas[table]` | `backup_schema` | `schema` | `NAME` const |
-| separator | call-time `$separator` | `separator` | `_` | — | — |
+| separator | call-time `$separator` | `separator` | `_` | - | - |
 
 The backup prefix is **independent** of the live prefix: with `backup_prefix:
 'bck'`, backing up `acl_role` yields `bck_acl_role`, never `bck_ww_acl_role`.
@@ -214,6 +214,6 @@ schema from the enum's `NAME` constant (or configuration) and layering the
 configured prefix.
 The `Schema` naming (rather than `Table`) is deliberate: a table identifier is
 one member of a schema, and "schema" is the addressable namespace across every
-RDBMS phpdb targets — MySQL/MariaDB (`database` synonym), PostgreSQL, SQLite
+RDBMS phpdb targets - MySQL/MariaDB (`database` synonym), PostgreSQL, SQLite
 (attached-DB qualifier), and future Oracle/SQL Server support. This contract may
 migrate into the phpdb org so it is available to all phpdb consumers.
