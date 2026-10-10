@@ -29,7 +29,7 @@ final class AttachCoreServicesMiddlewareFactoryTest extends TestCase
             ->with(InputFilterPluginManager::class)
             ->willReturn($pluginManager);
 
-        $middleware = (new AttachCoreServicesMiddlewareFactory())($container);
+        $middleware = new AttachCoreServicesMiddlewareFactory()($container);
 
         self::assertInstanceOf(AttachCoreServicesMiddleware::class, $middleware);
     }
