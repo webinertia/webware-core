@@ -102,7 +102,7 @@ services:
   # php-db/phpdb-pgsql. Reachable from `tooling` as host `pgsql` on port 5432.
   # -------------------------------------------------------------------------
   pgsql:
-    image: postgres:17
+    image: postgres:18
     ports:
       - "5432:5432"
     environment:
