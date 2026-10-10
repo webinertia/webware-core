@@ -11,8 +11,8 @@ use Override;
 /**
  * Single source of truth for the default roles webware provides.
  *
- * A case may be passed straight to Laminas ACL — `isAllowed(Role::Administrator)`,
- * `hasRole()`, `addRole()`, `inheritsRole()` — because the role registry accepts a
+ * A case may be passed straight to Laminas ACL - `isAllowed(Role::Administrator)`,
+ * `hasRole()`, `addRole()`, `inheritsRole()` - because the role registry accepts a
  * RoleInterface and resolves it through getRoleId(). Use `->value` only where a
  * plain string is required: database values, session payloads, array keys, and
  * `string` typed properties.

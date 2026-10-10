@@ -10,7 +10,7 @@ namespace Webware\Core\Acl;
  * Providers are *published*, never called across packages: a provider is listed
  * under the ACL config key's `rule_seed_providers` entry by its own package, and
  * whichever seeding command runs collects them from configuration. That keeps the
- * dependency direction one-way — every package points at core, and no package
+ * dependency direction one-way - every package points at core, and no package
  * names another package's class.
  *
  * `$adminName` is passed in rather than resolved by the provider so a provider

@@ -7,7 +7,7 @@ _Authored: 2026-05-31_
 ## Problem Statement
 
 Across all web applications there is a fundamental pain point: a single logical
-field must be consistently named and typed across multiple layers — the HTML form
+field must be consistently named and typed across multiple layers - the HTML form
 attribute, the request body array key, the filter/validator input name, the
 command constructor parameter, and the database column name. In this codebase
 that problem manifested as scattered `is_array()` checks, `(int)` casts, and
@@ -31,7 +31,7 @@ HTML Form (field name attributes)
 Request body array  (keys match form field names)
         │
         ▼
-Filter class        (PSR-7 boundary — the ONLY place raw body is touched)
+Filter class        (PSR-7 boundary - the ONLY place raw body is touched)
         │
         ▼
 Command / DTO       (typed value transport)
@@ -48,7 +48,7 @@ Database
 
 ---
 
-## Agreed Filter Convention (interim — before webware-filter ships)
+## Agreed Filter Convention (interim: before webware-filter ships)
 
 Until the full schema-driven infrastructure exists, every form endpoint gets a
 `*Filter` class extending Laminas's `InputFilter` and configuring its inputs in
@@ -73,10 +73,10 @@ final class RuleDataFilter extends InputFilter
 
 **Hard rules:**
 1. `(array)` cast lives **only** at the call site where the parsed body is handed
-   to `validate()` — never elsewhere in middleware
-2. `validate()->valid()` is the **only** gate — middleware never inspects individual properties
+   to `validate()` - never elsewhere in middleware
+2. `validate()->valid()` is the **only** gate - middleware never inspects individual properties
 3. `validate()->value()` keys **must** match the target command's constructor parameter names exactly
-4. No filter logic outside the filter class — ever
+4. No filter logic outside the filter class - ever
 
 Middleware pattern:
 ```php
@@ -104,7 +104,7 @@ $result = $this->commandBus->handle(new SaveRuleCommand(...$filterResult->value(
 ### Core Insight
 
 The database schema is the most stable contract in the system. Everything else
-— forms, filters, commands, repositories — must honour it anyway. Therefore the
+ - forms, filters, commands, repositories - must honour it anyway. Therefore the
 schema should be the single source of truth from which all other artefacts are
 derived or validated.
 
@@ -144,14 +144,14 @@ interface ColumnMetadataInterface
 
 `phpdb`'s `ColumnObject` already satisfies every method but cannot implement
 this interface directly (phpdb must not depend on webware packages). The adapter
-pattern resolves this — see `webware-orchestra` below.
+pattern resolves this - see `webware-orchestra` below.
 
 ### Package Responsibilities
 
 ```
 webware-core
     Defines: ColumnMetadataInterface
-    All other webware packages already depend on this — no new dependency introduced.
+    All other webware packages already depend on this - no new dependency introduced.
 
 phpdb / phpdb-mysql
     Unchanged. ColumnObject remains as-is.
@@ -186,9 +186,9 @@ webware-form  (when laminas-form is compatible with laminas-servicemanager v4)
 webware-orchestra
     Depends on: webware-core, phpdb, webware-filter, (later) webware-form
     Owns: ColumnObjectAdapter (implements ColumnMetadataInterface, wraps ColumnObject)
-          AggregateFilterFactory (orchestrator — takes table name, builds filter)
+          AggregateFilterFactory (orchestrator - takes table name, builds filter)
           Column type → alias mapping config
-    ConfigProvider: opt-in — wires everything together, nothing breaks if absent
+    ConfigProvider: opt-in - wires everything together, nothing breaks if absent
     This is the ONLY package that knows about both phpdb and webware-filter.
 ```
 
@@ -260,7 +260,7 @@ the Laminas one (or deprecates in favour of it). No consuming code changes becau
 the method signatures are identical. The migration is a `composer require` swap,
 not a refactor.
 
-### Naming Convention — The Key Alignment Problem
+### Naming Convention: The Key Alignment Problem
 
 The one piece that cannot be derived from the schema automatically is the mapping
 between DB column names (`role_id`) and command constructor parameter names
@@ -279,11 +279,11 @@ constructed with `new SaveRuleCommand(...$filterResult->value())`.
 
 ## Current Status
 
-- `ColumnMetadataInterface` — **not yet created** (defined here, to be implemented)
-- `webware-filter` package — **not yet created**
-- `webware-orchestra` package — **not yet created**
-- Interim `*Filter` convention — **agreed, being applied** starting with `RuleFilter`
+- `ColumnMetadataInterface` - **not yet created** (defined here, to be implemented)
+- `webware-filter` package - **not yet created**
+- `webware-orchestra` package - **not yet created**
+- Interim `*Filter` convention - **agreed, being applied** starting with `RuleFilter`
   in `webware-acl`
 - `laminas-form` / `laminas-inputfilter` / `laminas-validator` compatible with
-  servicemanager v4 — **not yet released**, architecture designed to accommodate
+  servicemanager v4 - **not yet released**, architecture designed to accommodate
   them when they land
