@@ -31,7 +31,8 @@ final class AttachCoreServicesMiddlewareTest extends TestCase
         $capturedRequest  = null;
 
         $handler = $this->createStub(RequestHandlerInterface::class);
-        $handler->method('handle')
+        $handler
+            ->method('handle')
             ->willReturnCallback(
                 static function (ServerRequestInterface $request) use (&$capturedRequest, $expectedResponse) {
                     $capturedRequest = $request;
