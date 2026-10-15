@@ -24,7 +24,8 @@ final class AttachCoreServicesMiddlewareFactoryTest extends TestCase
         $pluginManager = new InputFilterPluginManager(new ServiceManager());
 
         $container = $this->createMock(ContainerInterface::class);
-        $container->expects($this->once())
+        $container
+            ->expects($this->once())
             ->method('get')
             ->with(InputFilterPluginManager::class)
             ->willReturn($pluginManager);
