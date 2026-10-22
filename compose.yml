@@ -35,10 +35,10 @@ services:
     build:
       context: .
       args:
-        # PHP version to base the image on (latest 8.4 patch release). Keep
+        # PHP version to base the image on (latest 8.5 patch release). Keep
         # in sync with the package's supported PHP versions and
         # `config.platform.php`.
-        PHP_VERSION: "8.4.24"
+        PHP_VERSION: "8.5.12"
     # Keep the container alive so `docker compose exec` can attach to it.
     # (VS Code Dev Containers override this with their own command.)
     command: sleep infinity
@@ -82,9 +82,9 @@ services:
   # `tooling` as host `mysql` on port 3306.
   # -------------------------------------------------------------------------
   mysql:
-    image: mysql:9.7
+    image: mysql:9.7.4
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     environment:
       MYSQL_ROOT_HOST: "%"
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
@@ -102,9 +102,9 @@ services:
   # php-db/phpdb-pgsql. Reachable from `tooling` as host `pgsql` on port 5432.
   # -------------------------------------------------------------------------
   pgsql:
-    image: postgres:17
+    image: postgres:18.6
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -115,7 +115,11 @@ services:
       timeout: 5s
       retries: 30
     volumes:
-      - pgsql-data:/var/lib/postgresql/data
+      # postgres:18 moved PGDATA to /var/lib/postgresql/18/docker and declares
+      # VOLUME /var/lib/postgresql, so the mount point must be that parent.
+      # Mounting the old /var/lib/postgresql/data path leaves the named volume
+      # unused and the data in an anonymous volume that `down` discards.
+      - pgsql-data:/var/lib/postgresql
 
 volumes:
   composer-cache:
