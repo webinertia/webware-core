@@ -31,7 +31,7 @@
         "laminas/laminas-filter": "3.5.x-dev",
         "php-db/phpdb": "^0.6.0",
         "phpbench/phpbench": "^1.7",
-        "phpunit/phpunit": "^13.3",
+        "phpunit/phpunit": "^13.4.4",
         "roave/backward-compatibility-check": "^8.21.0",
         "roave/security-advisories": "dev-master",
         "webware/webware-tools": "^1.0.0-rc.8"
