@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": "~8.4.1 || ~8.5.0",
+        "php": "~8.4.1 || ~8.5.0 || ~8.6.0",
         "fig/http-message-util": "^1.1",
         "laminas/laminas-inputfilter": "3.0.x-dev",
         "laminas/laminas-permissions-acl": "^2.16",
