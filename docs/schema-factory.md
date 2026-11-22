@@ -1,6 +1,6 @@
 # Schema Factory: Config-Driven Table Identifiers
 
-_Authored: 2026-09-05_
+Authored: 2026-09-05
 
 ---
 
