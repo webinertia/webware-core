@@ -1,6 +1,6 @@
 # Schema-Driven Filter Architecture
 
-_Authored: 2026-05-31_
+Authored: 2026-05-31
 
 ---
 
