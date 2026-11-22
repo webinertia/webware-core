@@ -24,7 +24,7 @@ constraints apply to it.
 
 Every form submission travels through the following layers:
 
-```
+```text
 HTML Form (field name attributes)
         │
         ▼
@@ -72,6 +72,7 @@ final class RuleDataFilter extends InputFilter
 ```
 
 **Hard rules:**
+
 1. `(array)` cast lives **only** at the call site where the parsed body is handed
    to `validate()` - never elsewhere in middleware
 2. `validate()->valid()` is the **only** gate - middleware never inspects individual properties
@@ -79,6 +80,7 @@ final class RuleDataFilter extends InputFilter
 4. No filter logic outside the filter class - ever
 
 Middleware pattern:
+
 ```php
 $filter = $filterManager->get(RuleDataFilter::class);
 $filterResult = $filter->validate(is_array($body) ? $body : []);
@@ -104,7 +106,8 @@ $result = $this->commandBus->handle(new SaveRuleCommand(...$filterResult->value(
 ### Core Insight
 
 The database schema is the most stable contract in the system. Everything else
- - forms, filters, commands, repositories - must honour it anyway. Therefore the
+
+- forms, filters, commands, repositories - must honour it anyway. Therefore the
 schema should be the single source of truth from which all other artefacts are
 derived or validated.
 
@@ -148,7 +151,7 @@ pattern resolves this - see `webware-orchestra` below.
 
 ### Package Responsibilities
 
-```
+```text
 webware-core
     Defines: ColumnMetadataInterface
     All other webware packages already depend on this - no new dependency introduced.
@@ -194,7 +197,7 @@ webware-orchestra
 
 ### Dependency Graph
 
-```
+```text
 webware-core ◄──── webware-filter
 webware-core ◄──── webware-form
 webware-core ◄──── webware-orchestra
@@ -229,7 +232,7 @@ final class ColumnObjectAdapter implements ColumnMetadataInterface
 
 ### Orchestrator Flow
 
-```
+```text
 AggregateFilterFactory::fromTable(string $table, AdapterInterface $adapter)
         │
         ├─ Metadata::getColumns($table)
@@ -249,6 +252,7 @@ AggregateFilterFactory::fromTable(string $table, AdapterInterface $adapter)
 
 `webware-filter` defines its own `InputFilterInterface` mirroring the
 laminas-inputfilter 3.0 `InputFilterInterface` signatures exactly:
+
 - `validate(iterable $data, array $context = []): InputFilterValidationResult`
 - `InputFilterValidationResult::valid(): bool`
 - `InputFilterValidationResult::value(): array`
