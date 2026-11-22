@@ -24,14 +24,14 @@ trait HttpMethodProcessorTrait
         RequestHandlerInterface $handler,
     ): ResponseInterface {
         return match ($request->getMethod()) {
-            RequestMethodInterface::METHOD_GET => $this->processGet($request, $handler),
+            RequestMethodInterface::METHOD_GET  => $this->processGet($request, $handler),
             RequestMethodInterface::METHOD_POST => $this->processPost($request, $handler),
             RequestMethodInterface::METHOD_PATCH, RequestMethodInterface::METHOD_PUT => $this->processPatch(
                 $request,
                 $handler,
             ),
             RequestMethodInterface::METHOD_DELETE => $this->processDelete($request, $handler),
-            default                                                                  => throw new DomainException(
+            default                               => throw new DomainException(
                 "Unsupported HTTP method: {$request->getMethod()}",
             ),
         };

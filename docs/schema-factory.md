@@ -7,7 +7,8 @@ Authored: 2026-09-05
 ## Problem
 
 Database table and schema names leak into the application layer as raw strings
- - a schema enum carried only an *unprefixed* table name, and there was no way
+
+- a schema enum carried only an *unprefixed* table name, and there was no way
 for an application to apply an app-wide table prefix (or redirect a backup into
 a different schema) without hardcoding strings at every call site.
 
